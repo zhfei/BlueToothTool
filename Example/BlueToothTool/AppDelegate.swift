@@ -8,6 +8,7 @@
 
 import UIKit
 import DoraemonKit
+import BlueToothTool
 
 let isDebug = true
 
@@ -19,9 +20,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // 初始化日志系统
+        Logger.shared.setup(
+            enableConsoleLog: true,
+            enableFileLog: true,
+            logLevel: isDebug ? .debug : .info
+        )
+        
+        LogInfo("应用启动完成")
+        
         if isDebug {
             DoraemonManager.shareInstance().install()
             DoraemonManager.shareInstance().showDoraemon()
+            LogDebug("DoraemonKit 调试工具已启用")
         }
         
         return true
