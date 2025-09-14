@@ -39,6 +39,86 @@ class ViewController: UIViewController {
         if let logPath = Logger.shared.getLatestLogFilePath() {
             LogInfo("最新日志文件路径: \(logPath)")
         }
+        
+        // 测试网络功能
+        testNetworkRequests()
+    }
+    
+    /// 测试网络请求功能
+    private func testNetworkRequests() {
+        LogInfo("开始测试网络请求功能")
+        
+        // 测试 GET 请求
+        testGetRequest()
+        
+        // 测试 POST 请求
+        testPostRequest()
+        
+        // 测试网络状态
+        testNetworkStatus()
+    }
+    
+    /// 测试 GET 请求
+    private func testGetRequest() {
+        LogInfo("测试 GET 请求")
+        
+        NetworkAPI.get(
+            "/posts/1",
+            responseType: Post.self
+        ) { result in
+            switch result {
+            case .success(let post):
+                LogInfo("GET 请求成功: \(post.title)")
+            case .failure(let error):
+                LogError("GET 请求失败", error: error)
+            }
+        }
+    }
+    
+    /// 测试 POST 请求
+    private func testPostRequest() {
+        LogInfo("测试 POST 请求")
+        
+        let parameters = [
+            "title": "测试标题",
+            "body": "测试内容",
+            "userId": 1
+        ] as [String : Any]
+        
+        NetworkAPI.post(
+            "/posts",
+            parameters: parameters,
+            responseType: Post.self
+        ) { result in
+            switch result {
+            case .success(let post):
+                LogInfo("POST 请求成功: \(post.title)")
+            case .failure(let error):
+                LogError("POST 请求失败", error: error)
+            }
+        }
+    }
+    
+    /// 测试网络状态
+    private func testNetworkStatus() {
+        LogInfo("测试网络状态")
+        
+        if NetworkAPI.isNetworkReachable {
+            LogInfo("网络连接正常")
+            
+            switch NetworkAPI.networkConnectionType {
+            case .reachable(.ethernetOrWiFi):
+                LogInfo("WiFi 连接")
+            case .reachable(.cellular):
+                LogInfo("蜂窝网络连接")
+            case .notReachable:
+                LogWarning("无网络连接")
+            case .unknown:
+                LogWarning("网络状态未知")
+            }
+        } else {
+            LogError("网络连接不可用")
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -48,3 +128,10 @@ class ViewController: UIViewController {
 
 }
 
+// MARK: - 测试数据模型
+struct Post: Codable {
+    let id: Int
+    let title: String
+    let body: String
+    let userId: Int
+}

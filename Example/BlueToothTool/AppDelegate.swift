@@ -30,6 +30,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         LogInfo("应用启动完成")
         
+        // 配置网络工具
+        setupNetwork()
+        
         if isDebug {
             DoraemonManager.shareInstance().install()
             DoraemonManager.shareInstance().showDoraemon()
@@ -60,7 +63,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
+    
+    /// 配置网络工具
+    private func setupNetwork() {
+        // 配置基础URL（示例）
+        NetworkConfig.shared.configure(baseURL: "https://jsonplaceholder.typicode.com")
+        
+        // 配置超时时间
+        NetworkConfig.shared.configure(timeout: 30.0)
+        
+        // 配置日志
+        NetworkConfig.shared.configureLogging(requestLogging: isDebug, responseLogging: isDebug)
+        
+        LogInfo("网络工具配置完成")
+    }
 
 }
 
