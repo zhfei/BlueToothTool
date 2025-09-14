@@ -35,5 +35,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>此应用需要访问运动传感器以支持摇一摇调试功能</string>
 </dict>
 </plist>
