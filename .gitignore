@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# Xcode
+*.pbxuser
+*.xcworkspace
+*.xccheckout
+xcuserdata/
+project.xcworkspace/
+xcshareddata/
+build/
+
+# Swift Package Manager
+.build/
+Packages/
+**/Package.resolved
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# CocoaPods
+Example/Pods/
+Example/Podfile.lock
+
+# Swift Package Manager
+.build/
+Packages/
+**/Package.resolved
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Custom
+*.log
+*.swp
+.vscode
+*.xcuserdatad
+.cursor
+DEVELOPMENT_LOG.md
+TEST_CHECKLIST.md
