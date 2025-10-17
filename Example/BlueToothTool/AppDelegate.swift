@@ -39,6 +39,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             LogDebug("DoraemonKit 调试工具已启用")
         }
         
+        // 设置根视图控制器
+        setupRootViewController()
+        
         return true
     }
 
@@ -62,6 +65,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+    /// 设置根视图控制器
+    private func setupRootViewController() {
+        window = UIWindow(frame: UIScreen.main.bounds)
+        
+        // 创建主TabBar控制器
+        let mainTabBarController = MainTabBarController()
+        
+        // 设置为根视图控制器
+        window?.rootViewController = mainTabBarController
+        window?.makeKeyAndVisible()
+        
+        LogInfo("根视图控制器设置完成")
     }
     
     /// 配置网络工具
