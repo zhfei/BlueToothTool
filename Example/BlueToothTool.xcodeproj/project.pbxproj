@@ -19,7 +19,6 @@
 		911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */; };
 		911421D72E7736F300EC96DF /* LogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D62E7736F300EC96DF /* LogViewController.swift */; };
 		911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* SettingViewController.swift */; };
-		918473342EA25E3200411097 /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918473332EA25E3200411097 /* Assets.swift */; };
 		E0E13DD158B6212922A2A7CF /* Pods_BlueToothTool_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D11FFF74D9EAF8947B906C7 /* Pods_BlueToothTool_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -450,7 +449,6 @@
 				911421D02E77364700EC96DF /* DataPackageViewController.swift in Sources */,
 				911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
-				918473342EA25E3200411097 /* Assets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
