@@ -48,9 +48,8 @@ TODO: Add long description of the pod here.
   s.dependency 'IQKeyboardManagerSwift','8.0.1'
   s.dependency 'SwifterSwift','8.0.0'
   s.dependency 'HandyJSON','5.0.2'
-  s.dependency 'PullToRefreshKit','0.8.9'
+  s.dependency 'PullToRefreshKit', '0.8.8'
   s.dependency 'CocoaLumberjack/Swift','3.8.5'
-
-
+  s.dependency 'DTCoreText', '1.6.28'
 
 end
