@@ -133,3 +133,31 @@ extension UIView {
         center = CGPoint(x: x, y: y)
     }
 }
+
+extension UIView {
+    func push<T: UIViewController>(page ViewController: T.Type) {
+        let viewController = ViewController.init()
+        UIApplication.topMostViewController()?.navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    func push(page viewController: UIViewController) {
+        UIApplication.topMostViewController()?.navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    func present<T: UIViewController>(page ViewController: T.Type, fullScreen: Bool = false) {
+        let viewController = ViewController.init()
+        if fullScreen {
+            viewController.modalPresentationStyle = .fullScreen
+            viewController.modalTransitionStyle = .crossDissolve
+        }
+        UIApplication.topMostViewController()?.present(viewController, animated: true)
+    }
+    
+    func present(page viewController: UIViewController, fullScreen: Bool = false) {
+        if fullScreen {
+            viewController.modalPresentationStyle = .fullScreen
+            viewController.modalTransitionStyle = .crossDissolve
+        }
+        UIApplication.topMostViewController()?.present(viewController, animated: true)
+    }
+}
