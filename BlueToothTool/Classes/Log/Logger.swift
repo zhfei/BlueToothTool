@@ -8,6 +8,30 @@
 import Foundation
 import CocoaLumberjack
 
+// MARK: - 自定义日志格式器
+class CustomLogFormatter: NSObject, DDLogFormatter {
+    func format(message logMessage: DDLogMessage) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm:ss.SSS"
+        let timestamp = dateFormatter.string(from: logMessage.timestamp)
+        
+        let level: String
+        switch logMessage.flag {
+        case .error: level = "🔴 ERROR"
+        case .warning: level = "🟡 WARN"
+        case .info: level = "🔵 INFO"
+        case .debug: level = "🟢 DEBUG"
+        case .verbose: level = "⚪ VERBOSE"
+        default: level = "📝 LOG"
+        }
+        
+        let fileName = (logMessage.fileName as NSString).lastPathComponent
+        let function = logMessage.function ?? "unknown"
+        
+        return "[\(timestamp)] \(level) [\(fileName):\(logMessage.line)] \(function) - \(logMessage.message)"
+    }
+}
+
 /// 通用日志工具类
 /// 基于 CocoaLumberjack 封装的简单易用的日志工具
 public class Logger {
@@ -62,9 +86,10 @@ public class Logger {
         dynamicLogLevel = logLevel.ddLogLevel
         
         // 控制台日志
-        if enableConsoleLog, let logger = DDTTYLogger.sharedInstance  {
-            DDLog.add(DDOSLogger.sharedInstance)
-            DDLog.add(logger)
+        if enableConsoleLog {
+            let consoleLogger = DDOSLogger.sharedInstance
+            consoleLogger.logFormatter = CustomLogFormatter()
+            DDLog.add(consoleLogger)
         }
         
         // 文件日志
@@ -93,6 +118,7 @@ public class Logger {
         // 设置日志文件配置
         fileLogger?.maximumFileSize = 1024 * 1024 * 10 // 10MB
         fileLogger?.rollingFrequency = 60 * 60 * 24 // 24小时
+        fileLogger?.logFormatter = CustomLogFormatter()
         
         // 设置文件管理器配置
         fileManager.maximumNumberOfLogFiles = 7 // 保留7个文件

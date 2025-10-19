@@ -21,3 +21,11 @@ class BaseTableViewCell: UITableViewCell {
     }
 
 }
+
+
+public protocol BaseTableViewCellProtocol: NSObjectProtocol {
+
+    func cellHeight(item: Any) -> CGFloat 
+
+}
+
