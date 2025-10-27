@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../RepReady"
+		},
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../../swift-realtime-openai"
+		}
+	],
+	"settings": {}
+}

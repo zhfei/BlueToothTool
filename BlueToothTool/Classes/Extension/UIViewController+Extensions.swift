@@ -8,41 +8,6 @@
 import UIKit
 
 extension UIViewController {
-    
-    func topMostViewController() -> UIViewController {
-        if let presented = presentedViewController {
-            return presented.topMostViewController()
-        }
-        if let navigation = self as? UINavigationController {
-            return navigation.visibleViewController?.topMostViewController() ?? navigation
-        }
-        if let tab = self as? UITabBarController {
-            return tab.selectedViewController?.topMostViewController() ?? tab
-        }
-        return self
-    }
-    
-    func presentFullScreen(page viewController: UIViewController) {
-        guard let topMostViewController = UIApplication.topMostViewController() else {
-            return
-        }
-        
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.modalTransitionStyle = .crossDissolve
-        
-        topMostViewController.present(viewController, animated: true)
-    }
-    
-    func close() {
-        if let navigationController = self as? UINavigationController {
-            navigationController.popViewController(animated: true)
-        } else {
-            self.dismiss(animated: true)
-        }
-    }
-}
-
-extension UIViewController {
     //关闭右滑手势（禁止右滑关闭 navigationController 子页面）
     
     // 使用关联对象存储每个视图控制器的状态
@@ -117,25 +82,67 @@ extension UIViewController: UIGestureRecognizerDelegate {
     }
 }
 
-extension UIApplication {
-    class func newKeyWindow() -> UIWindow? {
-        guard let scene = UIApplication.shared.connectedScenes.first,
-              let windowScene = scene as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            return nil
+//!!!: Toast
+extension UIViewController {
+    func showAlert(
+        title: String? = nil,
+        message: String? = nil,
+        confirmTitle: String = "确认",
+        confirmStyle: UIAlertAction.Style = .destructive,
+        confirmAction: @escaping () -> Void
+    ) {
+        let alertController = UIAlertController(
+            title: title, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
+        let confirmAction = UIAlertAction(title: confirmTitle, style: confirmStyle) { (_) in
+            confirmAction()
         }
-        return window
+        alertController.addAction(cancelAction)
+        alertController.addAction(confirmAction)
+        present(alertController, animated: true, completion: nil)
     }
-    
-    class func topMostViewController() -> UIViewController? {
-        guard let scene = UIApplication.shared.connectedScenes.first,
-              let windowScene = scene as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            return nil
+    func showAlert(_ message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "确定", style: .default, handler: nil)
+        alert.addAction(okAction)
+        present(alert, animated: true, completion: nil)
+    }
+    func showActivity() {
+        view.makeToastActivity(view.center)
+    }
+    func hideActivity() {
+        view.hideToastActivity()
+    }
+    func showToast(
+        _ message: String, duration: TimeInterval = ToastManager.shared.duration,
+        imageType: Assets.ToastImageType = .none, style: ToastStyle = ToastManager.shared.style
+    ) {
+        let image: UIImage?
+        switch imageType {
+        case .none:
+            image = nil
+        case .completed:
+            image = UIImage(named: Assets.ImageName.toastCompleted)
+        case .error:
+            image = UIImage(named: Assets.ImageName.toastError)
+        case .tip:
+            image = UIImage(named: Assets.ImageName.toastTip)
+        case .custom(let customImage):
+            image = customImage
         }
-        let topViewController = window.rootViewController
-        return topViewController?.topMostViewController()
+        view.makeToast(message, duration: duration, image: image, style: style)
+    }
+    func hideToast() {
+        view.hideToast()
     }
 }
 
-
+extension UIViewController {
+    var navigationBarAndStateBarHeight: CGFloat {
+        guard let topInset = view.window?.safeAreaInsets.top else {
+            return 0
+        }
+        let navigationBarHeight = topInset + (navigationController?.navigationBar.frame.height ?? 0)
+        return navigationBarHeight
+    }
+}

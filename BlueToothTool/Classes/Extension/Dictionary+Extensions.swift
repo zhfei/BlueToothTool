@@ -7,6 +7,61 @@
 
 import Foundation
 
+extension Dictionary {
+    mutating func merge(_ other: [Key: Value]) {
+        for (key, value) in other {
+            self[key] = value
+        }
+    }
+}
+
+extension Dictionary {
+    func string(for key: Key) -> String? {
+        if let value = self[key] as? String {
+            return value
+        }
+        return nil
+    }
+    func bool(for key: Key) -> Bool? {
+        if let value = self[key] as? Bool {
+            return value
+        }
+        return false
+    }
+}
+
+extension Dictionary where Key == String, Value == Any {
+    /**
+     * 将一个 [String: Any] 类型的字典安全地转换为一个指定的 Codable 模型。
+     *
+     * - Parameter type: 要转换成的目标模型的类型 (例如 `User.self`)。
+     * - Returns: 一个可选的、转换后的模型实例。如果转换失败，则返回 `nil`。
+     *
+     * 该方法是通用的，适用于任何遵循 `Decodable` 协议的 struct 或 class。
+     */
+    func toModel<T: Decodable>(
+        _ type: T.Type, strategy: JSONDecoder.KeyDecodingStrategy = .useDefaultKeys
+    ) -> T? {
+        guard let data = try? JSONSerialization.data(withJSONObject: self, options: []) else {
+            print("❌ Error: Could not serialize dictionary to Data.")
+            return nil
+        }
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = strategy
+        guard let model = try? decoder.decode(T.self, from: data) else {
+            print("❌ Error: Could not decode Data to model of type \(T.self).")
+            print("   - Check if all required properties of \(T.self) exist in the dictionary.")
+            print("   - Check if data types match the model's properties.")
+            return nil
+        }
+
+        return model
+    }
+}
+
+
+
 extension Dictionary where Key == String, Value == Any {
     
     /// Subscript access to safely retrieve a value with fallback and type conversion support.

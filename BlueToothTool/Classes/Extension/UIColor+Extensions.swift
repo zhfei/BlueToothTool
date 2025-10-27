@@ -136,3 +136,83 @@ extension UIColor {
         return UIColor(hex: hex, alpha: alpha)
     }
 }
+
+
+extension UIColor {
+
+    static func color(rgb: Int) -> UIColor {
+        return UIColor(
+            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgb & 0xFF00) >> 8) / 255.0, blue: CGFloat((rgb & 0xFF)) / 255.0,
+            alpha: 1.0)
+    }
+
+    func blendWithColor(_ color: UIColor) -> UIColor {
+        var r1: CGFloat = 0
+        var r2: CGFloat = 0
+        var g1: CGFloat = 0
+        var g2: CGFloat = 0
+        var b1: CGFloat = 0
+        var b2: CGFloat = 0
+        var a1: CGFloat = 0
+        var a2: CGFloat = 0
+        self.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+        color.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+        let alpha = a2
+        let beta = 1 - alpha
+        let r = r1 * beta + r2 * alpha
+        let g = g1 * beta + g2 * alpha
+        let b = b1 * beta + b2 * alpha
+        return UIColor(red: r, green: g, blue: b, alpha: 1)
+    }
+}
+
+extension UIColor {
+    func isDark() -> Bool {
+        guard let components = cgColor.components else { return false }
+        let redBrightness = components[0] * 299
+        let greenBrightness = components[1] * 587
+        let blueBrightness = components[2] * 114
+        let brightness = (redBrightness + greenBrightness + blueBrightness) / 1000
+        return brightness < 0.5
+    }
+
+    static func readableColor(for color: UIColor) -> UIColor {
+        if color.isDark() {
+            return Color.whiteText
+        } else {
+            return Color.primaryText
+        }
+    }
+
+    static func randomColor() -> UIColor {
+        return UIColor(hexString: UIColor.randomColorHex()) ?? UIColor.red
+    }
+
+    static func randomColorHex() -> String {
+        let r = CGFloat.random(in: 0...1)
+        let g = CGFloat.random(in: 0...1)
+        let b = CGFloat.random(in: 0...1)
+
+        let red = Int(r * 255)
+        let green = Int(g * 255)
+        let blue = Int(b * 255)
+
+        let hex = String(format: "%02X%02X%02X", red, green, blue)
+
+        return hex
+    }
+
+    static func generateContrastingColorHexs() -> (String, String) {
+        let foregroundColor = randomColorHex()
+        var backgroundColor = randomColorHex()
+
+        // 确保前景色和背景色对比明显
+        while foregroundColor.isSimilarToColor(backgroundColor) {
+            backgroundColor = randomColorHex()
+        }
+
+        return (foregroundColor, backgroundColor)
+    }
+}
+
