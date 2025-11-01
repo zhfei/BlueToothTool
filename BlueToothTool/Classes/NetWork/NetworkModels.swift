@@ -25,6 +25,7 @@ public enum NetworkError: Error {
     case noNetwork
     case cancelled
     case unknown(Error)
+    case unsupportedParameters(String)
     
     /// 错误描述
     public var localizedDescription: String {
@@ -47,6 +48,8 @@ public enum NetworkError: Error {
             return "请求已取消"
         case .unknown(let error):
             return "未知错误: \(error.localizedDescription)"
+        case .unsupportedParameters(let message):
+            return "不支持的请求参数类型: \(message)"
         }
     }
     
@@ -71,6 +74,8 @@ public enum NetworkError: Error {
             return -1007
         case .unknown:
             return -1008
+        case .unsupportedParameters:
+            return -1009
         }
     }
 }
