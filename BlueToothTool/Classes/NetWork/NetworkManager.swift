@@ -22,7 +22,7 @@ public class NetworkManager {
     private let config = NetworkConfig.shared
     
     /// 当前请求任务
-    private var currentTasks: [String: DataRequest] = [:]
+    private var currentTasks: [String: Request] = [:]
     
     private init() {
         // 配置Session
@@ -78,8 +78,17 @@ public class NetworkManager {
         // 构建请求头
         let requestHeaders = buildHeaders(customHeaders: headers)
         
+        if let parameters = parameters, case .multipart = parameters {
+            completion(.failure(.unsupportedParameters("multipart 参数请使用 upload 接口")))
+            return taskId
+        }
+        
         // 构建参数
-        let (finalParameters, finalEncoding) = buildParameters(parameters: parameters, method: method, encoding: encoding)
+        let (finalParameters, finalEncoding) = buildParameters(
+            parameters: parameters,
+            method: method,
+            encoding: encoding
+        )
         
         // 打印请求日志
         if config.enableRequestLogging {
@@ -144,7 +153,7 @@ public class NetworkManager {
         let requestHeaders = buildHeaders(customHeaders: headers)
         
         // 创建多部分数据
-        session.upload(multipartFormData: { multipartFormData in
+        let uploadRequest = session.upload(multipartFormData: { multipartFormData in
             // 添加文件
             for file in files {
                 multipartFormData.append(file.data, withName: file.name, fileName: file.fileName, mimeType: file.mimeType)
@@ -161,7 +170,10 @@ public class NetworkManager {
                 }
             }
         }, to: fullURL, headers: requestHeaders)
-        .uploadProgress { uploadProgress in
+        
+        currentTasks[taskId] = uploadRequest
+        
+        uploadRequest.uploadProgress { uploadProgress in
             let progressModel = UploadProgress(
                 bytesUploaded: uploadProgress.completedUnitCount,
                 totalBytes: uploadProgress.totalUnitCount
@@ -211,6 +223,7 @@ public class NetworkManager {
         
         // 开始下载
         let downloadRequest = session.download(fullURL, headers: requestHeaders, to: destination)
+        currentTasks[taskId] = downloadRequest
         
         // 监听下载进度
         downloadRequest.downloadProgress { downloadProgress in
@@ -287,20 +300,21 @@ public class NetworkManager {
         method: HTTPMethod,
         encoding: ParameterEncoding?
     ) -> ([String: Any]?, ParameterEncoding) {
-        
         guard let parameters = parameters else {
-            return (nil, URLEncoding.default)
+            let defaultEncoding = encoding ?? (method.supportsBody ? JSONEncoding.default : URLEncoding.default)
+            return (nil, defaultEncoding)
         }
         
         switch parameters {
         case .json(let params):
-            return (params, JSONEncoding.default)
+            return (params, encoding ?? JSONEncoding.default)
         case .url(let params):
-            return (params, URLEncoding.default)
+            return (params, encoding ?? URLEncoding.default)
         case .form(let params):
-            return (params, URLEncoding.default)
-        case .multipart(let params, _):
-            return (params, URLEncoding.default)
+            return (params, encoding ?? URLEncoding(destination: .httpBody))
+        case .multipart:
+            assertionFailure("Multipart 参数请使用 upload 接口")
+            return (nil, encoding ?? URLEncoding.default)
         }
     }
     
@@ -316,22 +330,74 @@ public class NetworkManager {
             logResponse(response: response)
         }
         
-        switch response.result {
-        case .success(let data):
-            do {
-                let decodedObject = try JSONDecoder().decode(T.self, from: data)
-                completion(.success(decodedObject))
-            } catch {
-                completion(.failure(.decodingError(error)))
-            }
-        case .failure(let error):
+        if let error = response.error {
             if error.isExplicitlyCancelledError {
                 completion(.failure(.cancelled))
-            } else if error.isSessionTaskError {
-                completion(.failure(.timeout))
-            } else {
-                completion(.failure(.networkError(error)))
+                return
             }
+            
+            if let urlError = error.underlyingError as? URLError, urlError.code == .timedOut {
+                completion(.failure(.timeout))
+                return
+            }
+            
+            if error.isSessionTaskError {
+                completion(.failure(.networkError(error)))
+                return
+            }
+            
+            completion(.failure(.networkError(error)))
+            return
+        }
+        
+        guard let statusCode = response.response?.statusCode else {
+            completion(.failure(.noData))
+            return
+        }
+        
+        guard (200...299).contains(statusCode) else {
+            let message = response.data.flatMap { String(data: $0, encoding: .utf8) }
+            completion(.failure(.serverError(statusCode, message)))
+            return
+        }
+        
+        let responseData = response.data ?? Data()
+        
+        if responseData.isEmpty {
+            if T.self == Data.self {
+                completion(.success(Data() as! T))
+            } else if T.self == String.self {
+                completion(.success("" as! T))
+            } else {
+                completion(.failure(.noData))
+            }
+            return
+        }
+        
+        if T.self == Data.self {
+            completion(.success(responseData as! T))
+            return
+        }
+        
+        if T.self == String.self {
+            if let string = String(data: responseData, encoding: .utf8) {
+                completion(.success(string as! T))
+            } else {
+                let stringError = NSError(
+                    domain: "com.bluetoothtool.network",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "响应数据无法转换为字符串"]
+                )
+                completion(.failure(.decodingError(stringError)))
+            }
+            return
+        }
+        
+        do {
+            let decodedObject = try JSONDecoder().decode(T.self, from: responseData)
+            completion(.success(decodedObject))
+        } catch {
+            completion(.failure(.decodingError(error)))
         }
     }
     
