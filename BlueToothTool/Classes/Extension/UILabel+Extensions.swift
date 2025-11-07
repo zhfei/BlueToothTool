@@ -74,32 +74,62 @@ extension UILabel {
     /// 预处理 Markdown 字符串
     /// - Parameter markdownString: 原始 Markdown 字符串
     /// - Returns: 预处理后的字符串
+    /// - Note: 支持连续多个转义换行符，如 "\\n\\n\\n" 会转换为保留三个空行的格式
     private func preprocessMarkdownNewlines(_ markdownString: String) -> String {
-        // 第一步：将转义的换行符 \\n 转换为真正的换行符 \n
-        var processed = markdownString.replacingOccurrences(of: "\\n", with: "\n")
-        
-        // 第二步：将单个换行符转换为两个空格 + 换行符（Markdown 换行规则）
-        // 使用正则表达式匹配单个换行符（不在两个连续换行符中的）
-        // 匹配模式：不是换行符的字符 + 单个换行符 + 不是换行符的字符
+        // 使用正则表达式匹配连续的 \\n（在字符串中 \\n 是字面量 \n）
+        // 正则表达式需要匹配字面量 \n，所以使用 \\\\n（四个反斜杠+n）
         do {
-            let regex = try NSRegularExpression(pattern: "([^\\n])\\n([^\\n])", options: [])
-            let nsString = processed as NSString
+            // 匹配连续的 \\n（1个或多个）
+            // 在 Swift 字符串中，\\\\n 表示正则表达式中的 \\n，匹配字符串中的字面量 \n
+            let regex = try NSRegularExpression(pattern: "(\\\\n)+", options: [])
+            let nsString = markdownString as NSString
             let range = NSRange(location: 0, length: nsString.length)
             
-            // 使用 stringByReplacingMatches 方法进行替换
-            // $1 和 $2 分别代表第一个和第二个捕获组
-            processed = regex.stringByReplacingMatches(
-                in: processed,
-                options: [],
-                range: range,
-                withTemplate: "$1  \n$2"
-            )
+            // 获取所有匹配结果
+            let matches = regex.matches(in: markdownString, options: [], range: range)
+            
+            LogDebug("markdownString: \(markdownString)")
+            LogDebug("matches: \(matches)")
+            
+            // 如果没有匹配到，直接返回原字符串
+            guard !matches.isEmpty else {
+                return markdownString
+            }
+            
+            // 反向遍历匹配结果，从后往前替换，避免索引变化问题
+            var processed = markdownString
+            let nsMutableString = NSMutableString(string: processed)
+            
+            for (index,match) in matches.enumerated().reversed() {
+                let matchRange = match.range
+                let matchedText = nsString.substring(with: matchRange)
+                
+                // 计算连续 \\n 的数量（每个 \\n 是2个字符：\ 和 n）
+                let newlineCount = matchedText.count / 2
+                
+                // 根据数量进行转换
+                // 统一所有数量的连续换行符都转换为对应数量的硬换行（两个空格+换行符）
+                // 1个 \\n → "  \n"（1个硬换行）
+                // 2个 \\n → "  \n  \n"（2个硬换行）
+                // 3个及以上 \\n → 对应数量的 "  \n"（多个硬换行）
+                let replacement = String(repeating: "  \n", count: newlineCount)
+                
+                // 替换匹配到的内容
+                nsMutableString.replaceCharacters(in: matchRange, with: replacement)
+                
+                LogDebug("nsMutableString: \(nsMutableString) - newlineCount:\(newlineCount) - index:\(index) - match:\(match)")
+            }
+            
+            
+            processed = nsMutableString as String
+            
+            LogDebug("processed: \(processed)")
+            return processed
         } catch {
-            // 如果正则表达式失败，至少完成第一步的转义字符转换
+            // 如果正则表达式失败，返回原字符串
             print("[UILabel+Extensions] Markdown 预处理正则表达式失败: \(error.localizedDescription)")
+            return markdownString
         }
-        
-        return processed
     }
     
     /// 创建格式化的 NSAttributedString（共享逻辑）
