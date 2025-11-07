@@ -71,13 +71,47 @@ extension UILabel {
 extension UILabel {
     // MARK: - Markdown 处理
     
+    /// 预处理 Markdown 字符串
+    /// - Parameter markdownString: 原始 Markdown 字符串
+    /// - Returns: 预处理后的字符串
+    private func preprocessMarkdownNewlines(_ markdownString: String) -> String {
+        // 第一步：将转义的换行符 \\n 转换为真正的换行符 \n
+        var processed = markdownString.replacingOccurrences(of: "\\n", with: "\n")
+        
+        // 第二步：将单个换行符转换为两个空格 + 换行符（Markdown 换行规则）
+        // 使用正则表达式匹配单个换行符（不在两个连续换行符中的）
+        // 匹配模式：不是换行符的字符 + 单个换行符 + 不是换行符的字符
+        do {
+            let regex = try NSRegularExpression(pattern: "([^\\n])\\n([^\\n])", options: [])
+            let nsString = processed as NSString
+            let range = NSRange(location: 0, length: nsString.length)
+            
+            // 使用 stringByReplacingMatches 方法进行替换
+            // $1 和 $2 分别代表第一个和第二个捕获组
+            processed = regex.stringByReplacingMatches(
+                in: processed,
+                options: [],
+                range: range,
+                withTemplate: "$1  \n$2"
+            )
+        } catch {
+            // 如果正则表达式失败，至少完成第一步的转义字符转换
+            print("[UILabel+Extensions] Markdown 预处理正则表达式失败: \(error.localizedDescription)")
+        }
+        
+        return processed
+    }
+    
     /// 创建格式化的 NSAttributedString（共享逻辑）
     /// - Parameter markdownString: Markdown 格式的字符串
     /// - Returns: 格式化后的 NSAttributedString，失败时返回 nil
     public func createFormattedAttributedString(from markdownString: String) -> NSMutableAttributedString? {
         do {
+            // 预处理 Markdown 字符串（处理转义换行符和单个换行符）
+            let processedMarkdown = preprocessMarkdownNewlines(markdownString)
+            
             // 使用 Down 解析 Markdown
-            let down = Down(markdownString: markdownString)
+            let down = Down(markdownString: processedMarkdown)
             let attributedString = try down.toAttributedString()
             
             // 创建可变副本以便修改样式
