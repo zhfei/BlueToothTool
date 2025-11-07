@@ -51,5 +51,6 @@ TODO: Add long description of the pod here.
   s.dependency 'PullToRefreshKit', '0.8.8'
   s.dependency 'CocoaLumberjack/Swift','3.8.5'
   s.dependency 'DTCoreText', '1.6.28'
+  s.dependency 'Down','0.11.0'
 
 end
