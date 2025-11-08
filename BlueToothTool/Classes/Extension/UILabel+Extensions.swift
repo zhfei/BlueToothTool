@@ -239,3 +239,63 @@ extension UILabel {
         }
     }
 }
+
+extension UILabel {
+    /// 设置 UILabel 的行高和对齐方式
+    /// - Parameters:
+    ///   - lineHeight: 行高值（CGFloat）
+    ///   - alignment: 文字对齐方式，默认为 nil（使用 label 的当前 textAlignment）
+    /// - Note: 如果 label 已有 text，会创建 attributedText；如果已有 attributedText，会更新其段落样式
+    public func setLineHeight(_ lineHeight: CGFloat, alignment: NSTextAlignment? = nil) {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.minimumLineHeight = lineHeight
+        paragraphStyle.maximumLineHeight = lineHeight
+        
+        // 确定对齐方式
+        let textAlignment: NSTextAlignment
+        if let alignment = alignment {
+            // 使用传入的对齐方式
+            textAlignment = alignment
+        } else if let attributedText = self.attributedText,
+                  let existingParagraphStyle = attributedText.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle {
+            // 如果已有 attributedText，尝试从段落样式中提取对齐方式
+            textAlignment = existingParagraphStyle.alignment
+        } else {
+            // 使用 label 的当前对齐方式
+            textAlignment = self.textAlignment
+        }
+        paragraphStyle.alignment = textAlignment
+        
+        // 获取当前文本和样式
+        let currentText: String
+        let currentFont: UIFont
+        let currentColor: UIColor
+        
+        if let attributedText = self.attributedText {
+            // 如果已有 attributedText，提取文本和样式
+            currentText = attributedText.string
+            currentFont = attributedText.attribute(.font, at: 0, effectiveRange: nil) as? UIFont ?? self.font ?? UIFont.systemFont(ofSize: 17)
+            currentColor = attributedText.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? UIColor ?? self.textColor ?? UIColor.black
+        } else if let text = self.text {
+            // 如果只有 text，使用当前 label 的样式
+            currentText = text
+            currentFont = self.font ?? UIFont.systemFont(ofSize: 17)
+            currentColor = self.textColor ?? UIColor.black
+        } else {
+            // 如果没有文本，直接返回
+            return
+        }
+        
+        // 创建新的 attributedString
+        let attributedString = NSAttributedString(
+            string: currentText,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .foregroundColor: currentColor,
+                .font: currentFont
+            ]
+        )
+        
+        self.attributedText = attributedString
+    }
+}
