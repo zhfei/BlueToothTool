@@ -56,7 +56,7 @@ class LogViewController: BlueToothBaseViewController {
 //        }
         
         
-        let ctx = "# Cold Calling Performance Analysis\\n## Overall Trend in Cold Call Performance  \\n\\nOver time, \\n\\n\\nthe user\'s cold calling performance has demonstrated **incremental but inconsistent progress**. Initial sessions showed an extremely passive approach, where the user spoke little and allowed conversations to be led entirely by the prospect."
+        let ctx = "# Cold Calling Performance Analysis\\n## Overall Trend in Cold Call Performance  \\nOver time, \\n\\n\\n\\nthe user\'s cold calling performance has demonstrated **incremental but inconsistent progress**. Initial\\n sessions\\n\\n showed\\n\\n\\n an\\n\\n\\n\\n extremely passive approach, where the user spoke little and allowed conversations to be led entirely by the prospect."
         contentLabel.setMarkdownTextForLabel(ctx)
         
     }

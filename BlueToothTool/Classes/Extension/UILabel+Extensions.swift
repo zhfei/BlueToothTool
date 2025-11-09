@@ -69,6 +69,8 @@ extension UILabel {
 //!!!: Markdown 文本展示
 
 extension UILabel {
+    static let PlaceStringWord = "换行占位"
+    static let PlaceString = " \n \(UILabel.PlaceStringWord) \n"
     // MARK: - Markdown 处理
     
     /// 预处理 Markdown 字符串
@@ -107,24 +109,105 @@ extension UILabel {
                 // 计算连续 \\n 的数量（每个 \\n 是2个字符：\ 和 n）
                 let newlineCount = matchedText.count / 2
                 
-                // 根据数量进行转换
-                // 统一所有数量的连续换行符都转换为对应数量的硬换行（两个空格+换行符）
-                // 1个 \\n → "  \n"（1个硬换行）
-                // 2个 \\n → "  \n  \n"（2个硬换行）
-                // 3个及以上 \\n → 对应数量的 "  \n"（多个硬换行）
-                let replacement = String(repeating: "  \n", count: newlineCount)
+                // 第一步：将每个 \\n 转换为标准的 markdown 硬换行格式 " \n"（一个空格+换行符）
+                // 1个 \\n → " \n"（1个硬换行）
+                // 2个 \\n → " \n \n"（2个硬换行）
+                // 3个及以上 \\n → 对应数量的 " \n"（多个硬换行）
+                let markdownNewlines = String(repeating: " \n", count: newlineCount)
                 
                 // 替换匹配到的内容
-                nsMutableString.replaceCharacters(in: matchRange, with: replacement)
+                nsMutableString.replaceCharacters(in: matchRange, with: markdownNewlines)
                 
-                LogDebug("nsMutableString: \(nsMutableString) - newlineCount:\(newlineCount) - index:\(index) - match:\(match)")
+                LogDebug("nsMutableString after step1: \(nsMutableString) - newlineCount:\(newlineCount) - index:\(index)")
             }
-            
             
             processed = nsMutableString as String
             
+            // 第二步：将所有 " \n" 替换为占位字符串 PlaceString
+            // 使用正则表达式匹配 " \n"（一个空格+换行符）
+            let placeholderRegex = try NSRegularExpression(pattern: " \n", options: [])
+            let processedNsString = processed as NSString
+            let processedRange = NSRange(location: 0, length: processedNsString.length)
+            let placeholderMatches = placeholderRegex.matches(in: processed, options: [], range: processedRange)
+            
+            guard !placeholderMatches.isEmpty else {
             LogDebug("processed: \(processed)")
             return processed
+            }
+            
+            let finalMutableString = NSMutableString(string: processed)
+            let placeholder = UILabel.PlaceString
+            
+            // 定义连续区间结构体，用于保存连续出现的" \n"的位置信息
+            struct ContinuousRange {
+                // 保存该区间内所有" \n"的匹配索引（在 placeholderMatches 数组中的索引）
+                var matchIndices: [Int] = []
+                
+                // 获取该区间的最后一个匹配索引（正向遍历时的最后一个）
+                var lastMatchIndex: Int? {
+                    return matchIndices.last
+                }
+            }
+            
+            // 识别所有连续出现的" \n"范围
+            var continuousRanges: [ContinuousRange] = []
+            var currentRange = ContinuousRange()
+            
+            // " \n" 本身是3个字符（空格+换行符）
+            // 如果两个匹配之间间隔不超过1个字符，说明它们是连续的
+            for i in 0..<placeholderMatches.count {
+                if i == 0 {
+                    // 第一个匹配，开始新的区间
+                    currentRange.matchIndices.append(i)
+                } else {
+                    let prevMatch = placeholderMatches[i - 1]
+                    let prevEnd = prevMatch.range.location + prevMatch.range.length
+                    let currentMatch = placeholderMatches[i]
+                    let currentLocation = currentMatch.range.location
+                    let gap = currentLocation - prevEnd
+                    
+                    // 如果间隔不超过1个字符，说明是连续的
+                    if gap <= 1 {
+                        // 继续当前区间
+                        currentRange.matchIndices.append(i)
+                    } else {
+                        // 不连续，保存当前区间并开始新区间
+                        if !currentRange.matchIndices.isEmpty {
+                            continuousRanges.append(currentRange)
+                        }
+                        currentRange = ContinuousRange()
+                        currentRange.matchIndices.append(i)
+                    }
+                }
+            }
+            
+            // 保存最后一个区间
+            if !currentRange.matchIndices.isEmpty {
+                continuousRanges.append(currentRange)
+            }
+            
+            // 标记需要跳过的匹配索引（每个连续区间的最后一个）
+            var skipIndices: Set<Int> = []
+            for range in continuousRanges {
+                if let lastIndex = range.lastMatchIndex {
+                    skipIndices.insert(lastIndex)
+                }
+            }
+            
+            // 反向遍历，从后往前替换（跳过标记的匹配）
+            for (reversedIndex, match) in placeholderMatches.reversed().enumerated() {
+                // 计算正向遍历时的索引
+                let originalIndex = placeholderMatches.count - 1 - reversedIndex
+                
+                // 如果这个匹配不在跳过列表中，则进行替换
+                if !skipIndices.contains(originalIndex) {
+                    finalMutableString.replaceCharacters(in: match.range, with: placeholder)
+                }
+            }
+            
+            let finalProcessed = finalMutableString as String
+            LogDebug("final processed: \(finalProcessed)")
+            return finalProcessed
         } catch {
             // 如果正则表达式失败，返回原字符串
             print("[UILabel+Extensions] Markdown 预处理正则表达式失败: \(error.localizedDescription)")
@@ -165,29 +248,131 @@ extension UILabel {
             mutableAttributedString.addAttribute(.font, value: defaultFont, range: fullRange)
             mutableAttributedString.addAttribute(.foregroundColor, value: defaultColor, range: fullRange)
             
-            // 然后重新应用 markdown 解析出的特殊格式（如粗体、斜体等）
-            // 重要：只保留字体格式和链接颜色，不重新应用普通文本的颜色
+            // 然后重新应用 markdown 解析出的所有样式属性
+            // 重要：保留所有 markdown 解析器设置的样式，包括字体、颜色、段落样式等
             attributedString.enumerateAttributes(in: fullRange, options: []) { attributes, range, _ in
-                // 保留字体属性（粗体、斜体等格式）
-                if let font = attributes[.font] as? UIFont {
-                    mutableAttributedString.addAttribute(.font, value: font, range: range)
-                }
-                
-                // 只保留链接的颜色，普通文本使用默认颜色
-                // 如果该范围是链接，则保留链接的颜色
-                if let link = attributes[.link] {
-                    // 这是链接，保留链接的颜色（如果存在）
-                    if let linkColor = attributes[.foregroundColor] as? UIColor {
-                        mutableAttributedString.addAttribute(.foregroundColor, value: linkColor, range: range)
+                // 保留所有样式属性
+                for (key, value) in attributes {
+                    // 对于段落样式，需要合并而不是覆盖
+                    if key == .paragraphStyle, let existingParagraphStyle = value as? NSParagraphStyle {
+                        // 创建新的段落样式，合并默认样式和 markdown 解析的样式
+                        let mergedParagraphStyle = existingParagraphStyle.mutableCopy() as! NSMutableParagraphStyle
+                        // 保留 markdown 解析的对齐方式，如果没有则使用默认对齐方式
+                        if mergedParagraphStyle.alignment == .natural {
+                            mergedParagraphStyle.alignment = textAlignment
+                        }
+                        // 保留 markdown 解析的行间距，如果没有则使用默认行间距
+                        if mergedParagraphStyle.lineSpacing == 0 {
+                            mergedParagraphStyle.lineSpacing = 2.0
+                        }
+                        // 保留 markdown 解析的段落间距，如果没有则使用默认段落间距
+                        if mergedParagraphStyle.paragraphSpacing == 0 {
+                            mergedParagraphStyle.paragraphSpacing = 4.0
+                        }
+                        mutableAttributedString.addAttribute(.paragraphStyle, value: mergedParagraphStyle, range: range)
+                    } else {
+                        // 对于其他属性，直接应用
+                        mutableAttributedString.addAttribute(key, value: value, range: range)
+                        mutableAttributedString.addAttribute(.foregroundColor, value: defaultColor, range: range)
                     }
-                    // 保留链接属性本身
-                    mutableAttributedString.addAttribute(.link, value: link, range: range)
                 }
-                // 普通文本不重新应用颜色，使用上面设置的默认颜色
             }
             
-            // 应用段落样式（包括对齐方式）
-            mutableAttributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullRange)
+            // 只对没有段落样式的文本范围应用默认段落样式
+            // 遍历文本，找到没有段落样式的范围
+            var location = 0
+            while location < mutableAttributedString.length {
+                var effectiveRange = NSRange()
+                let existingParagraphStyle = mutableAttributedString.attribute(.paragraphStyle, at: location, effectiveRange: &effectiveRange) as? NSParagraphStyle
+                
+                if existingParagraphStyle == nil {
+                    // 这个范围没有段落样式，应用默认段落样式
+                    mutableAttributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: effectiveRange)
+                    mutableAttributedString.addAttribute(.foregroundColor, value: defaultColor, range: effectiveRange)
+                }
+                
+                location = effectiveRange.location + effectiveRange.length
+            }
+            
+            // 处理占位字符串：将所有 PlaceString 的颜色设置为透明，并为每个占位字符串创建独立段落
+            let placeholder = UILabel.PlaceStringWord
+            let fullText = mutableAttributedString.string
+            var searchRange = NSRange(location: 0, length: fullText.count)
+            var placeholderRanges: [NSRange] = []
+            
+            // 第一步：收集所有占位字符串的位置
+            while searchRange.location < fullText.count {
+                let foundRange = (fullText as NSString).range(of: placeholder, options: [], range: searchRange)
+                if foundRange.location != NSNotFound {
+                    placeholderRanges.append(foundRange)
+                    // 继续搜索下一个占位字符串
+                    let nextLocation = foundRange.location + foundRange.length
+                    searchRange = NSRange(location: nextLocation, length: fullText.count - nextLocation)
+                } else {
+                    // 没有找到更多占位字符串，退出循环
+                    break
+                }
+            }
+            let nWord = "\n"
+            // 第二步：从后往前处理每个占位字符串，避免索引变化问题
+            for foundRange in placeholderRanges.reversed() {
+                // 将占位字符串的颜色设置为透明
+                mutableAttributedString.addAttribute(.foregroundColor, value: Color.clear, range: foundRange)
+                
+                // 为每个占位字符串创建独立的段落样式
+                // 创建一个新的段落样式，确保占位字符串单独成为一个段落
+                let placeholderParagraphStyle = NSMutableParagraphStyle()
+                placeholderParagraphStyle.alignment = textAlignment
+                placeholderParagraphStyle.lineSpacing = 2.0
+                placeholderParagraphStyle.paragraphSpacing = 0.0 // 占位字符串段落不添加额外间距
+                placeholderParagraphStyle.paragraphSpacingBefore = 0.0 // 占位字符串段落前不添加额外间距
+//                placeholderParagraphStyle.minimumLineHeight = 0.0
+//                placeholderParagraphStyle.maximumLineHeight = 0.0
+                
+                // 将段落样式应用到占位字符串
+                mutableAttributedString.addAttribute(.paragraphStyle, value: placeholderParagraphStyle, range: foundRange)
+                
+                // 确保占位字符串前后都有换行符，使其成为独立段落
+                // 获取当前字符串（因为从后往前处理，前面的占位字符串位置还未变化）
+                let currentText = mutableAttributedString.string
+                let currentNsString = currentText as NSString
+                
+                // 检查占位字符串前是否有换行符
+                if foundRange.location > 0 {
+                    let charBefore = currentNsString.character(at: foundRange.location - 1)
+                    if charBefore != 0x000A && charBefore != 0x000D { // 不是换行符（\n 或 \r）
+                        // 在占位字符串前插入换行符
+                        mutableAttributedString.insert(NSAttributedString(string: ""), at: foundRange.location)
+                    }
+                } else {
+                    // 占位字符串在开头，在前面插入换行符
+                    mutableAttributedString.insert(NSAttributedString(string: ""), at: 0)
+                }
+                
+                // 检查占位字符串后是否有换行符
+                // 注意：由于可能已经在前面的代码中插入了换行符，需要重新计算位置
+                let updatedText = mutableAttributedString.string
+                let updatedNsString = updatedText as NSString
+                // 重新查找占位字符串的位置（因为可能已经插入了换行符）
+                // 从原始位置附近开始查找，避免找到其他位置的占位字符串
+                let searchStartLocation = max(0, foundRange.location - 1)
+                let searchLength = min(updatedNsString.length - searchStartLocation, foundRange.length + 10)
+                let updatedSearchRange = NSRange(location: searchStartLocation, length: searchLength)
+                let updatedRange = updatedNsString.range(of: placeholder, options: [], range: updatedSearchRange)
+                if updatedRange.location != NSNotFound {
+                    let endLocation = updatedRange.location + updatedRange.length
+                    if endLocation < mutableAttributedString.length {
+                        let charAfter = updatedNsString.character(at: endLocation)
+                        if charAfter != 0x000A && charAfter != 0x000D { // 不是换行符（\n 或 \r）
+                            // 在占位字符串后插入换行符
+                            mutableAttributedString.insert(NSAttributedString(string: nWord), at: endLocation)
+                        }
+                    } else {
+                        // 占位字符串在末尾，在后面插入换行符
+                        mutableAttributedString.append(NSAttributedString(string: nWord))
+                    }
+                }
+            }
             
             return mutableAttributedString
         } catch {
