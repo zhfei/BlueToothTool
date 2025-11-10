@@ -247,6 +247,7 @@ extension UILabel {
             // 先为整个文本应用默认字体和颜色（作为基础样式）
             mutableAttributedString.addAttribute(.font, value: defaultFont, range: fullRange)
             mutableAttributedString.addAttribute(.foregroundColor, value: defaultColor, range: fullRange)
+            mutableAttributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullRange)
             
             // 然后重新应用 markdown 解析出的所有样式属性
             // 重要：保留所有 markdown 解析器设置的样式，包括字体、颜色、段落样式等
