@@ -318,6 +318,90 @@ public class NetworkAPI {
         )
     }
     
+    /// 带缓存的下载文件方法
+    /// - Parameters:
+    ///   - url: 下载URL
+    ///   - headers: 请求头
+    ///   - progress: 进度回调
+    ///   - completion: 完成回调，返回本地文件URL
+    /// - Returns: 请求任务标识（如果使用缓存则返回空字符串）
+    @discardableResult
+    public static func downloadWithCache(
+        _ url: String,
+        headers: HTTPHeaders? = nil,
+        progress: ((DownloadProgress) -> Void)? = nil,
+        completion: @escaping (NetworkResult<URL>) -> Void
+    ) -> String {
+        
+        // 生成缓存文件名
+        let cacheFileName = generateCacheFileName(from: url)
+        
+        // 获取缓存目录
+        let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let cacheFileURL = cacheDirectory.appendingPathComponent("NetworkCache").appendingPathComponent(cacheFileName)
+        
+        // 检查缓存文件是否存在
+        if FileManager.default.fileExists(atPath: cacheFileURL.path) {
+            // 缓存存在，直接返回
+            DispatchQueue.main.async {
+                completion(.success(cacheFileURL))
+            }
+            return ""
+        }
+        
+        // 缓存不存在，创建缓存目录
+        let cacheDir = cacheFileURL.deletingLastPathComponent()
+        do {
+            try FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            DispatchQueue.main.async {
+                completion(.failure(.networkError(error)))
+            }
+            return ""
+        }
+        
+        // 下载文件到缓存目录
+        let destination: DownloadRequest.Destination = { _, _ in
+            return (cacheFileURL, [.removePreviousFile, .createIntermediateDirectories])
+        }
+        
+        return manager.download(
+            url: url,
+            destination: destination,
+            headers: headers,
+            progress: progress,
+            completion: completion
+        )
+    }
+    
+    /// 生成缓存文件名
+    /// - Parameter url: 原始URL
+    /// - Returns: 缓存文件名（包含扩展名）
+    public static func generateCacheFileName(from url: String) -> String {
+        // 尝试从URL中提取文件扩展名
+        var fileExtension = ""
+        if let urlObj = URL(string: url) {
+            let pathExtension = urlObj.pathExtension
+            if !pathExtension.isEmpty {
+                fileExtension = ".\(pathExtension)"
+            }
+        }
+        
+        // 使用URL的Base64编码作为文件名，确保唯一性和一致性
+        let urlData = url.data(using: .utf8) ?? Data()
+        var base64String = urlData.base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "=", with: "")
+        
+        // 限制文件名长度，避免过长
+        if base64String.count > 100 {
+            base64String = String(base64String.prefix(100))
+        }
+        
+        return "\(base64String)\(fileExtension)"
+    }
+    
     // MARK: - 请求管理
     
     /// 取消请求
