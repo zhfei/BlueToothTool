@@ -78,6 +78,11 @@ extension UILabel {
     /// - Returns: 预处理后的字符串
     /// - Note: 支持连续多个转义换行符，如 "\\n\\n\\n" 会转换为保留三个空行的格式
     private func preprocessMarkdownNewlines(_ markdownString: String) -> String {
+        // 快速检查：如果字符串不包含 \\n，直接返回，避免创建正则表达式和临时对象
+        if !markdownString.contains("\\n") {
+            return markdownString
+        }
+        
         // 使用正则表达式匹配连续的 \\n（在字符串中 \\n 是字面量 \n）
         // 正则表达式需要匹配字面量 \n，所以使用 \\\\n（四个反斜杠+n）
         do {
@@ -194,14 +199,21 @@ extension UILabel {
                 }
             }
             
-            // 反向遍历，从后往前替换（跳过标记的匹配）
-            for (reversedIndex, match) in placeholderMatches.reversed().enumerated() {
-                // 计算正向遍历时的索引
-                let originalIndex = placeholderMatches.count - 1 - reversedIndex
-                
-                // 如果这个匹配不在跳过列表中，则进行替换
-                if !skipIndices.contains(originalIndex) {
-                    finalMutableString.replaceCharacters(in: match.range, with: placeholder)
+            // 收集所有需要替换的 range，按位置从大到小排序，避免 range 失效
+            var rangesToReplace: [(range: NSRange, index: Int)] = []
+            for (index, match) in placeholderMatches.enumerated() {
+                if !skipIndices.contains(index) {
+                    rangesToReplace.append((range: match.range, index: index))
+                }
+            }
+            // 按位置从大到小排序（从后往前替换）
+            rangesToReplace.sort { $0.range.location > $1.range.location }
+            
+            // 从后往前替换，确保 range 始终有效
+            for item in rangesToReplace {
+                // 验证 range 是否有效
+                if item.range.location + item.range.length <= finalMutableString.length {
+                    finalMutableString.replaceCharacters(in: item.range, with: placeholder)
                 }
             }
             
@@ -248,6 +260,8 @@ extension UILabel {
             mutableAttributedString.addAttribute(.font, value: defaultFont, range: fullRange)
             mutableAttributedString.addAttribute(.foregroundColor, value: defaultColor, range: fullRange)
             mutableAttributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullRange)
+            
+            
             
             // 然后重新应用 markdown 解析出的所有样式属性
             // 重要：保留所有 markdown 解析器设置的样式，包括字体、颜色、段落样式等
@@ -374,6 +388,16 @@ extension UILabel {
                     }
                 }
             }
+            
+            let paragraphStyle2 = NSMutableParagraphStyle()
+            paragraphStyle2.alignment = .center
+
+            mutableAttributedString.enumerateAttribute(.paragraphStyle, in: fullRange, options: []) { value, range, _ in
+                let style = (value as? NSMutableParagraphStyle)?.mutableCopy() as? NSMutableParagraphStyle ?? paragraphStyle
+                style.alignment = .center
+                mutableAttributedString.addAttribute(.paragraphStyle, value: style, range: range)
+            }
+
             
             return mutableAttributedString
         } catch {
