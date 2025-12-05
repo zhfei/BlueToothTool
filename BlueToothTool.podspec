@@ -52,5 +52,9 @@ TODO: Add long description of the pod here.
   s.dependency 'CocoaLumberjack/Swift','3.8.5'
   s.dependency 'DTCoreText', '1.6.28'
   s.dependency 'Down','0.11.0'
+  # 国际化
+  s.dependency 'Localize-Swift','3.2.0'
+  # 组建化路由
+  s.dependency 'MGJRouter_Swift','0.1.3'
 
 end
