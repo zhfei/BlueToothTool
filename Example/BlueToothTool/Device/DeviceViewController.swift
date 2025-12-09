@@ -11,11 +11,50 @@ import SnapKit
 import BlueToothTool
 
 class DeviceViewController: BlueToothBaseViewController {
+    
+    // MARK: - Properties
+    
+    private let bleManager = BLEManager.shared
+    private var allDevices: [BLEDeviceModel] = []
+    private var filteredDevices: [BLEDeviceModel] = []
+    private var refreshTimer: Timer?
+    
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "搜索设备名称或UUID"
+        searchBar.backgroundColor = Color.lakeBlue
+        searchBar.searchBarStyle = .minimal
+        searchBar.tintColor = Color.white
+        return searchBar
+    }()
+    
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = Color.backgroundGray
+        tableView.separatorStyle = .none
+        return tableView
+    }()
 
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupBLEManager()
+        startScanning()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopScanning()
+        stopRefreshTimer()
+    }
+    
+    deinit {
+        stopRefreshTimer()
+    }
+    
+    // MARK: - Setup
     
     private func setupUI() {
         title = "设备列表"
@@ -26,22 +65,9 @@ class DeviceViewController: BlueToothBaseViewController {
             .foregroundColor: Color.white
         ]
         
-        // 添加搜索按钮
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal"),
-            style: .plain,
-            target: self,
-            action: #selector(searchButtonTapped)
-        )
-        
         // 添加搜索栏
-        let searchBar = UISearchBar()
-        searchBar.placeholder = "搜索"
-        searchBar.backgroundColor = Color.lakeBlue
-        searchBar.searchBarStyle = .minimal
-        searchBar.tintColor = Color.white
-        
         view.addSubview(searchBar)
+        searchBar.delegate = self
         searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
@@ -49,20 +75,144 @@ class DeviceViewController: BlueToothBaseViewController {
         }
         
         // 添加设备列表
-        let tableView = UITableView()
-        tableView.backgroundColor = Color.backgroundGray
-        tableView.separatorStyle = .none
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "DeviceCell")
-        
         view.addSubview(tableView)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(BLEDeviceCell.self, forCellReuseIdentifier: "BLEDeviceCell")
         tableView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom)
             make.left.right.bottom.equalToSuperview()
         }
     }
     
-    @objc private func searchButtonTapped() {
-        // 搜索按钮点击事件
-        print("搜索按钮被点击")
+    private func setupBLEManager() {
+        
+        //创建一个定时器，每3s调用一次方法self?.updateDeviceList()，刷新搜索到的设备列表
+        startRefreshTimer()
+        
+        // 设置设备发现回调
+        bleManager.onDeviceDiscovered = { [weak self] device in
+            
+        }
+        
+        // 设置设备更新回调
+        bleManager.onDeviceUpdated = { [weak self] device in
+            
+        }
+        
+        // 设置蓝牙状态变化回调
+        bleManager.onBluetoothStateChanged = { [weak self] state in
+            DispatchQueue.main.async {
+                if state == .poweredOn {
+                    self?.startScanning()
+                } else {
+                    self?.stopScanning()
+                }
+            }
+        }
+    }
+    
+    // MARK: - BLE Scanning
+    
+    private func startScanning() {
+        guard bleManager.isScanning == false else {
+            return
+        }
+        
+        bleManager.startScanning()
+    }
+    
+    private func stopScanning() {
+        bleManager.stopScanning()
+    }
+    
+    // MARK: - Timer Management
+    
+    private func startRefreshTimer() {
+        stopRefreshTimer()
+        
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+            self?.updateDeviceList()
+        }
+        
+        // 将定时器添加到 RunLoop 的 common modes，确保在滚动时也能触发
+        if let timer = refreshTimer {
+            RunLoop.main.add(timer, forMode: .common)
+        }
+    }
+    
+    private func stopRefreshTimer() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
+    }
+    
+    // MARK: - Data Management
+    
+    private func updateDeviceList() {
+        allDevices = bleManager.devices
+        filterDevices()
+    }
+    
+    private func filterDevices() {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
+            filteredDevices = allDevices
+            tableView.reloadData()
+            return
+        }
+        
+        let lowercasedSearchText = searchText.lowercased()
+        filteredDevices = allDevices.filter { device in
+            device.name.lowercased().contains(lowercasedSearchText) ||
+            device.identifier.lowercased().contains(lowercasedSearchText)
+        }
+        
+        tableView.reloadData()
+    }
+}
+
+// MARK: - UITableViewDataSource
+extension DeviceViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filteredDevices.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "BLEDeviceCell", for: indexPath) as! BLEDeviceCell
+        let device = filteredDevices[indexPath.row]
+        cell.configure(with: device)
+        return cell
+    }
+}
+
+// MARK: - UITableViewDelegate
+extension DeviceViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 120
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let device = filteredDevices[indexPath.row]
+        print("选中设备: \(device.name), UUID: \(device.identifier)")
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension DeviceViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filterDevices()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        filterDevices()
     }
 }
