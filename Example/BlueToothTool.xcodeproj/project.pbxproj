@@ -21,6 +21,7 @@
 		911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* SettingViewController.swift */; };
 		914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914934212EE82A860014C4AF /* BLEDeviceCell.swift */; };
 		9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */; };
+		9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */; };
 		E0E13DD158B6212922A2A7CF /* Pods_BlueToothTool_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D11FFF74D9EAF8947B906C7 /* Pods_BlueToothTool_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -59,6 +60,7 @@
 		911421D82E77370D00EC96DF /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		914934212EE82A860014C4AF /* BLEDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceCell.swift; sourceTree = "<group>"; };
 		9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailViewController.swift; sourceTree = "<group>"; };
+		9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceDetailViewController.swift; sourceTree = "<group>"; };
 		918473332EA25E3200411097 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		A94DE7ED835A9BDE3924E63C /* Pods-BlueToothTool_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueToothTool_Tests.release.xcconfig"; path = "Target Support Files/Pods-BlueToothTool_Tests/Pods-BlueToothTool_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		BCB80E7ADB706892849053E3 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 				914934212EE82A860014C4AF /* BLEDeviceCell.swift */,
 				911421D12E77365800EC96DF /* DeviceViewController.swift */,
 				9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */,
+				9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */,
 			);
 			path = Device;
 			sourceTree = "<group>";
@@ -462,6 +465,7 @@
 				911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				911421D72E7736F300EC96DF /* LogViewController.swift in Sources */,
+				9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */,
 				914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */,
 				911421D02E77364700EC96DF /* DataPackageViewController.swift in Sources */,
 				9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */,

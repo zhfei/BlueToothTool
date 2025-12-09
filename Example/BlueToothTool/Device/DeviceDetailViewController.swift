@@ -34,6 +34,8 @@ class DeviceDetailViewController: BlueToothBaseViewController {
         super.viewDidLoad()
         setupUI()
         updateDeviceInfo()
+        setupConnectButton()
+        setupBLEManagerCallbacks()
     }
     
     // MARK: - Setup
@@ -239,6 +241,64 @@ class DeviceDetailViewController: BlueToothBaseViewController {
             return dict.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
         } else {
             return String(describing: value)
+        }
+    }
+    
+    // MARK: - Connect Button
+    
+    private func setupConnectButton() {
+        // 检查是否存在 kCBAdvDataServiceUUIDs
+        if let advertisementData = device?.advertisementData,
+           advertisementData["kCBAdvDataServiceUUIDs"] != nil {
+            let connectButton = UIBarButtonItem(
+                title: "连接设备",
+                style: .plain,
+                target: self,
+                action: #selector(connectButtonTapped)
+            )
+            navigationItem.rightBarButtonItem = connectButton
+        }
+    }
+    
+    @objc private func connectButtonTapped() {
+        guard let peripheral = device?.peripheral else {
+            print("设备外设不存在")
+            return
+        }
+        
+        // 连接设备
+        BLEManager.shared.centralManager.connect(peripheral, options: nil)
+    }
+    
+    // MARK: - BLE Manager Callbacks
+    
+    private func setupBLEManagerCallbacks() {
+        // 设备连接成功回调
+        BLEManager.shared.onDeviceConnected = { [weak self] peripheral in
+            guard let self = self,
+                  self.device?.peripheral?.identifier == peripheral.identifier else {
+                return
+            }
+            
+            print("设备连接成功，开始发现服务...")
+            // 发现服务
+            peripheral.delegate = BLEManager.shared
+            peripheral.discoverServices(nil)
+        }
+        
+        // 服务发现完成回调
+        BLEManager.shared.onServicesDiscovered = { [weak self] peripheral, services in
+            guard let self = self,
+                  self.device?.peripheral?.identifier == peripheral.identifier else {
+                return
+            }
+            
+            print("服务发现完成，共发现 \(services.count) 个服务")
+            // 跳转到服务详情页
+            let serviceDetailVC = DeviceServiceDetailViewController()
+            serviceDetailVC.peripheral = peripheral
+            serviceDetailVC.services = services
+            PageManager.pushViewController(serviceDetailVC, animated: true)
         }
     }
 }

@@ -21,7 +21,7 @@ public class BLEManager: NSObject {
     public static let shared = BLEManager()
     
     /// 中央管理器
-    private var centralManager: CBCentralManager!
+    public var centralManager: CBCentralManager!
     
     /// 已发现的设备列表（使用 Set 自动去重）
     private var discoveredDevices: Set<BLEDeviceModel> = []
@@ -44,6 +44,15 @@ public class BLEManager: NSObject {
     
     /// 蓝牙状态变化回调
     public var onBluetoothStateChanged: ((CBManagerState) -> Void)?
+    
+    /// 设备连接成功回调
+    public var onDeviceConnected: ((CBPeripheral) -> Void)?
+    
+    /// 服务发现完成回调
+    public var onServicesDiscovered: ((CBPeripheral, [CBService]) -> Void)?
+    
+    /// 特征发现完成回调
+    public var onCharacteristicsDiscovered: ((CBService, [CBCharacteristic]) -> Void)?
     
     private override init() {
         super.init()
@@ -156,5 +165,62 @@ extension BLEManager: CBCentralManagerDelegate {
             onDeviceDiscovered?(device)
         }
     }
+    
+    // 连接成功
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        print("BLE 连接成功 ✅")
+        DispatchQueue.main.async { [weak self] in
+            self?.onDeviceConnected?(peripheral)
+        }
+    }
+
+
+     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+         print("BLE 已断开 ❌")
+     }
+    
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: (any Error)?) {
+        print("BLE 连接失败 \(error)")
+    }
+}
+
+extension BLEManager: CBPeripheralDelegate {
+    // peripheral.delegate 的 方法实现。
+     // MARK: - CBPeripheralDelegate
+    public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        let services = peripheral.services ?? []
+        print("发现服务数量: \(services.count)")
+        for service in services {
+            print("发现服务: \(service.uuid)")
+            peripheral.discoverCharacteristics(nil, for: service)
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.onServicesDiscovered?(peripheral, services)
+        }
+    }
+
+    public func peripheral(_ peripheral: CBPeripheral,
+                        didDiscoverCharacteristicsFor service: CBService,
+                        error: Error?) {
+        let characteristics = service.characteristics ?? []
+        for characteristic in characteristics {
+            print("发现特征: \(characteristic.uuid)")
+            // 读取特征值
+            peripheral.readValue(for: characteristic)
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.onCharacteristicsDiscovered?(service, characteristics)
+        }
+    }
+
+    public func peripheral(_ peripheral: CBPeripheral,
+                        didUpdateValueFor characteristic: CBCharacteristic,
+                        error: Error?) {
+            if let data = characteristic.value {
+                print("收到特征数据: \(data)")
+            }
+        }
 }
 
