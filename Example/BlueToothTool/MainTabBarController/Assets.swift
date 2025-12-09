@@ -29,7 +29,7 @@ struct Assets {
         static let amberOrange = #colorLiteral(red: 0.8784313725, green: 0.5411764706, blue: 0.1294117647, alpha: 1) // UIColor(hex: 0xE08A21)
         static let lemonYellow = #colorLiteral(red: 1, green: 0.8352941176, blue: 0, alpha: 1) // UIColor(hex: 0xFFD500)
         
-        static let primaryText = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1) // UIColor(hex: 0x020438)!
+        static let primaryText = #colorLiteral(red: 0.007843137255, green: 0.01568627451, blue: 0.2196078431, alpha: 1) // UIColor(hex: 0x020438)!
         static let grayText = #colorLiteral(red: 0.6, green: 0.6, blue: 0.6, alpha: 1) // UIColor(hex: 0x999999)!
         static let grayLightText = #colorLiteral(red: 0.7921568627, green: 0.7921568627, blue: 0.7921568627, alpha: 1) // UIColor(hex: 0xCACACA)!
         static let whiteText = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.7959695778) // UIColor(white: 1.0, alpha: 0.8)

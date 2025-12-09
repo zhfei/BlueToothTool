@@ -24,7 +24,7 @@ class BLEDeviceCell: UITableViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = Color.red
+        label.textColor = Color.primaryText
         label.numberOfLines = 1
         return label
     }()

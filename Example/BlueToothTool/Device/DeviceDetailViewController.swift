@@ -1,0 +1,244 @@
+//
+//  DeviceDetailViewController.swift
+//  BlueToothTool_Example
+//
+//  Created by 周飞 on 2025/12/9.
+//  Copyright © 2025 CocoaPods. All rights reserved.
+//
+
+import UIKit
+import SnapKit
+import BlueToothTool
+
+class DeviceDetailViewController: BlueToothBaseViewController {
+    
+    // MARK: - Properties
+    
+    var device: BLEDeviceModel?
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.backgroundColor = Color.backgroundGray
+        return scrollView
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.backgroundColor = Color.backgroundGray
+        return view
+    }()
+    
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        updateDeviceInfo()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupUI() {
+        title = "设备详情"
+        
+        // 设置导航栏样式
+        navigationController?.navigationBar.backgroundColor = Color.lakeBlue
+        navigationController?.navigationBar.tintColor = Color.white
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor: Color.white
+        ]
+        
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+    }
+    
+    private func updateDeviceInfo() {
+        guard let device = device else { return }
+        
+        // 清空之前的内容
+        contentView.subviews.forEach { $0.removeFromSuperview() }
+        
+        var lastView: UIView?
+        
+        // 设备基本信息
+        let deviceInfoSection = createSectionView(title: "设备信息")
+        contentView.addSubview(deviceInfoSection)
+        deviceInfoSection.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.right.equalToSuperview()
+        }
+        lastView = deviceInfoSection
+        
+        // 设备名称
+        let nameItem = createInfoItem(title: "设备名称", value: device.name)
+        contentView.addSubview(nameItem)
+        nameItem.snp.makeConstraints { make in
+            make.top.equalTo(deviceInfoSection.snp.bottom).offset(12)
+            make.left.right.equalToSuperview()
+        }
+        lastView = nameItem
+        
+        // UUID
+        let uuidItem = createInfoItem(title: "UUID", value: device.identifier)
+        contentView.addSubview(uuidItem)
+        uuidItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = uuidItem
+        
+        // RSSI
+        let rssiItem = createInfoItem(title: "RSSI", value: "\(device.rssi) dBm")
+        contentView.addSubview(rssiItem)
+        rssiItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = rssiItem
+        
+        // 距离
+        let distanceText: String
+        if device.distance < 0 {
+            distanceText = "未知"
+        } else if device.distance < 1 {
+            distanceText = String(format: "%.2f 米", device.distance)
+        } else {
+            distanceText = String(format: "%.1f 米", device.distance)
+        }
+        let distanceItem = createInfoItem(title: "距离", value: distanceText)
+        contentView.addSubview(distanceItem)
+        distanceItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = distanceItem
+        
+        // 发现时间
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let timeText = dateFormatter.string(from: device.discoveredTime)
+        let timeItem = createInfoItem(title: "发现时间", value: timeText)
+        contentView.addSubview(timeItem)
+        timeItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = timeItem
+        
+        // 广播信息
+        if let advertisementData = device.advertisementData, !advertisementData.isEmpty {
+            let broadcastSection = createSectionView(title: "广播信息")
+            contentView.addSubview(broadcastSection)
+            broadcastSection.snp.makeConstraints { make in
+                make.top.equalTo(lastView!.snp.bottom).offset(24)
+                make.left.right.equalToSuperview()
+            }
+            lastView = broadcastSection
+            
+            // 遍历广播数据
+            for (key, value) in advertisementData.sorted(by: { $0.key < $1.key }) {
+                let valueString = formatAdvertisementValue(value)
+                let broadcastItem = createInfoItem(title: key, value: valueString)
+                contentView.addSubview(broadcastItem)
+                broadcastItem.snp.makeConstraints { make in
+                    make.top.equalTo(lastView!.snp.bottom).offset(8)
+                    make.left.right.equalToSuperview()
+                }
+                lastView = broadcastItem
+            }
+        }
+        
+        // 设置 contentView 的底部约束
+        if let lastView = lastView {
+            lastView.snp.makeConstraints { make in
+                make.bottom.equalToSuperview().offset(-16)
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func createSectionView(title: String) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = Color.white
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        titleLabel.textColor = Color.primaryText
+        
+        containerView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview().offset(-16)
+            make.top.equalToSuperview().offset(16)
+            make.bottom.equalToSuperview().offset(-12)
+        }
+        
+        return containerView
+    }
+    
+    private func createInfoItem(title: String, value: String) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = Color.white
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = Color.grayText
+        
+        let valueLabel = UILabel()
+        valueLabel.text = value
+        valueLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        valueLabel.textColor = Color.primaryText
+        valueLabel.numberOfLines = 0
+        
+        containerView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview().offset(-16)
+            make.top.equalToSuperview().offset(12)
+        }
+        
+        containerView.addSubview(valueLabel)
+        valueLabel.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview().offset(-16)
+            make.top.equalTo(titleLabel.snp.bottom).offset(4)
+            make.bottom.equalToSuperview().offset(-12)
+        }
+        
+        // 添加分隔线
+        let separator = UIView()
+        separator.backgroundColor = Color.seperatorLine
+        containerView.addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.height.equalTo(0.5)
+        }
+        
+        return containerView
+    }
+    
+    private func formatAdvertisementValue(_ value: Any) -> String {
+        if let data = value as? Data {
+            return data.map { String(format: "%02X", $0) }.joined(separator: " ")
+        } else if let array = value as? [Any] {
+            return array.map { String(describing: $0) }.joined(separator: ", ")
+        } else if let dict = value as? [String: Any] {
+            return dict.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
+        } else {
+            return String(describing: value)
+        }
+    }
+}

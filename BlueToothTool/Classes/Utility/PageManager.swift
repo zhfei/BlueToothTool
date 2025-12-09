@@ -7,6 +7,7 @@
 
 import UIKit
 
+public
 class PageManager {
 
     /// 获取当前顶层视图控制器
@@ -152,7 +153,7 @@ class PageManager {
     ///   - animated: 是否使用动画效果，默认为true
     /// - Returns: 是否成功导航到下一个页面
     @discardableResult
-    static func pushViewController(_ viewController: UIViewController, animated: Bool = true)
+    public static func pushViewController(_ viewController: UIViewController, animated: Bool = true)
         -> Bool
     {
         guard let topVC = getTopViewController() else { return false }

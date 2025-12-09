@@ -71,6 +71,10 @@ public class BLEManager: NSObject {
             CBCentralManagerScanOptionAllowDuplicatesKey: true
         ])
         
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: {[weak self] in
+            self?.stopScanning()
+        })
+        
         print("开始扫描 BLE 设备...")
     }
     
@@ -122,6 +126,7 @@ extension BLEManager: CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
+        LogDebug("peripheral:\(peripheral) - advertisementData:\(advertisementData) - RSSI:\(RSSI)")
         let deviceName = peripheral.name ?? "未知设备"
         let identifier = peripheral.identifier.uuidString
         let rssi = RSSI.intValue

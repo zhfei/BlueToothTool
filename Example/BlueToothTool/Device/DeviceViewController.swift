@@ -28,6 +28,20 @@ class DeviceViewController: BlueToothBaseViewController {
         return searchBar
     }()
     
+    private let refreshButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+        button.tintColor = Color.white
+        button.backgroundColor = Color.lakeBlue
+        return button
+    }()
+    
+    private let searchContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = Color.lakeBlue
+        return view
+    }()
+    
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = Color.backgroundGray
@@ -65,13 +79,29 @@ class DeviceViewController: BlueToothBaseViewController {
             .foregroundColor: Color.white
         ]
         
-        // 添加搜索栏
-        view.addSubview(searchBar)
-        searchBar.delegate = self
-        searchBar.snp.makeConstraints { make in
+        // 添加搜索容器视图
+        view.addSubview(searchContainerView)
+        searchContainerView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
             make.height.equalTo(44)
+        }
+        
+        // 添加刷新按钮
+        searchContainerView.addSubview(refreshButton)
+        refreshButton.addTarget(self, action: #selector(refreshButtonTapped), for: .touchUpInside)
+        refreshButton.snp.makeConstraints { make in
+            make.right.equalToSuperview().offset(-12)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(32)
+        }
+        
+        // 添加搜索栏
+        searchContainerView.addSubview(searchBar)
+        searchBar.delegate = self
+        searchBar.snp.makeConstraints { make in
+            make.top.bottom.left.equalToSuperview()
+            make.right.equalTo(refreshButton.snp.left).offset(-8)
         }
         
         // 添加设备列表
@@ -112,13 +142,25 @@ class DeviceViewController: BlueToothBaseViewController {
         }
     }
     
+    // MARK: - Actions
+    
+    @objc private func refreshButtonTapped() {
+        startScanning()
+    }
+    
     // MARK: - BLE Scanning
     
     private func startScanning() {
-        guard bleManager.isScanning == false else {
-            return
-        }
+        // 停止当前扫描
+        stopScanning()
         
+        // 清空设备列表
+        bleManager.clearDevices()
+        allDevices.removeAll()
+        filteredDevices.removeAll()
+        tableView.reloadData()
+        
+        // 重新开始扫描
         bleManager.startScanning()
     }
     
@@ -195,7 +237,11 @@ extension DeviceViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let device = filteredDevices[indexPath.row]
-        print("选中设备: \(device.name), UUID: \(device.identifier)")
+        
+        // 跳转到设备详情页
+        let detailVC = DeviceDetailViewController()
+        detailVC.device = device
+        PageManager.pushViewController(detailVC, animated: true)
     }
 }
 
