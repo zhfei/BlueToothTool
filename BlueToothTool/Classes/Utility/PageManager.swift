@@ -92,7 +92,7 @@ class PageManager {
     ///   - animated: 是否使用动画效果，默认为true
     /// - Returns: 是否成功返回到指定类型的页面
     @discardableResult
-    static func popToViewController<T: UIViewController>(
+    public static func popToViewController<T: UIViewController>(
         ofType viewControllerType: T.Type, animated: Bool = true
     ) -> Bool {
         guard let topVC = getTopViewController() else { return false }

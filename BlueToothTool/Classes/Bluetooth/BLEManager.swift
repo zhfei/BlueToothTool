@@ -54,6 +54,12 @@ public class BLEManager: NSObject {
     /// 特征发现完成回调
     public var onCharacteristicsDiscovered: ((CBService, [CBCharacteristic]) -> Void)?
     
+    /// 特征值更新回调
+    public var onCharacteristicValueUpdated: ((CBCharacteristic, Data?) -> Void)?
+    
+    /// 特征写入完成回调
+    public var onCharacteristicWriteCompleted: ((CBCharacteristic, Error?) -> Void)?
+    
     private override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
@@ -218,9 +224,27 @@ extension BLEManager: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral,
                         didUpdateValueFor characteristic: CBCharacteristic,
                         error: Error?) {
-            if let data = characteristic.value {
-                print("收到特征数据: \(data)")
-            }
+        if let data = characteristic.value {
+            print("收到特征数据: \(data)")
         }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.onCharacteristicValueUpdated?(characteristic, characteristic.value)
+        }
+    }
+    
+    public func peripheral(_ peripheral: CBPeripheral,
+                        didWriteValueFor characteristic: CBCharacteristic,
+                        error: Error?) {
+        if let error = error {
+            print("写入特征失败: \(error)")
+        } else {
+            print("写入特征成功")
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.onCharacteristicWriteCompleted?(characteristic, error)
+        }
+    }
 }
 

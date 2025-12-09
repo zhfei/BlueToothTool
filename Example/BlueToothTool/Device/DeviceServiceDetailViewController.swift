@@ -37,11 +37,27 @@ class DeviceServiceDetailViewController: BlueToothBaseViewController {
         setupUI()
         setupBLEManagerCallbacks()
         updateServicesInfo()
+        setupDisconnectButton()
     }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    
+    // MARK: - Setup Disconnect Button
+    
+    private func setupDisconnectButton() {
+        let disconnectButton = UIBarButtonItem(
+            title: "断开连接",
+            style: .plain,
+            target: self,
+            action: #selector(disconnectButtonTapped)
+        )
+        navigationItem.rightBarButtonItem = disconnectButton
+    }
+    
+    @objc private func disconnectButtonTapped() {
         guard let peripheral = peripheral else { return }
         BLEManager.shared.centralManager.cancelPeripheralConnection(peripheral)
+        
+        // 返回到设备详情页
+        PageManager.popToViewController(ofType: DeviceDetailViewController.self, animated: true)
     }
     
     // MARK: - Setup
@@ -87,9 +103,9 @@ class DeviceServiceDetailViewController: BlueToothBaseViewController {
         var lastView: UIView?
         
         // 遍历所有服务
-        for (index, service) in services.enumerated() {
+        for (serviceIndex, service) in services.enumerated() {
             // 服务标题
-            let serviceSection = createSectionView(title: "服务 \(index + 1): \(service.uuid.uuidString)")
+            let serviceSection = createSectionView(title: "服务 \(serviceIndex + 1): \(service.uuid.uuidString)")
             contentView.addSubview(serviceSection)
             if let last = lastView {
                 serviceSection.snp.makeConstraints { make in
@@ -138,6 +154,13 @@ class DeviceServiceDetailViewController: BlueToothBaseViewController {
                         title: "特征 \(charIndex + 1)",
                         characteristic: characteristic
                     )
+                    
+                    // 添加点击手势
+                    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(characteristicItemTapped(_:)))
+                    charItem.addGestureRecognizer(tapGesture)
+                    charItem.isUserInteractionEnabled = true
+                    charItem.tag = serviceIndex * 1000 + charIndex // 使用组合 tag
+                    
                     contentView.addSubview(charItem)
                     charItem.snp.makeConstraints { make in
                         make.top.equalTo(lastView!.snp.bottom).offset(8)
@@ -315,5 +338,31 @@ class DeviceServiceDetailViewController: BlueToothBaseViewController {
         }
         
         return containerView
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func characteristicItemTapped(_ gesture: UITapGestureRecognizer) {
+        guard let containerView = gesture.view else { return }
+        
+        let tag = containerView.tag
+        let serviceIndex = tag / 1000
+        let charIndex = tag % 1000
+        
+        guard serviceIndex < services.count,
+              let characteristics = services[serviceIndex].characteristics,
+              charIndex < characteristics.count else {
+            return
+        }
+        
+        let service = services[serviceIndex]
+        let characteristic = characteristics[charIndex]
+        
+        // 跳转到特征详情页
+        let characteristicVC = DeviceServiceCharacteristicViewController()
+        characteristicVC.peripheral = peripheral
+        characteristicVC.service = service
+        characteristicVC.characteristic = characteristic
+        PageManager.pushViewController(characteristicVC, animated: true)
     }
 }
