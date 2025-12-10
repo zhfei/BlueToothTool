@@ -70,6 +70,7 @@ public class MFIManager: NSObject {
     /// 刷新设备列表
     public func refreshDevices() {
         let connectedAccessories = EAAccessoryManager.shared().connectedAccessories
+        LogDebug("EA: get list \(connectedAccessories)")
         
         // 更新已存在的设备
         for accessory in connectedAccessories {

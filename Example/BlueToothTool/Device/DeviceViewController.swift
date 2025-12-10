@@ -168,6 +168,10 @@ class DeviceViewController: BlueToothBaseViewController {
         
         // 重新开始扫描
         bleManager.startScanning()
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: {[weak self] in
+            self?.hideActivity()
+        })
     }
     
     private func stopScanning() {

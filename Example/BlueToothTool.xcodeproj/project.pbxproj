@@ -75,8 +75,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		911421E22E779E0400EC96DF /* MainTabBarController */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = MainTabBarController;
 			sourceTree = "<group>";
 		};

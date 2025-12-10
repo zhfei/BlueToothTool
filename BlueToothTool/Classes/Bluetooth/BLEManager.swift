@@ -90,7 +90,7 @@ public class BLEManager: NSObject {
             CBCentralManagerScanOptionAllowDuplicatesKey: true
         ])
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: {[weak self] in
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3, execute: {[weak self] in
             self?.stopScanning()
         })
         

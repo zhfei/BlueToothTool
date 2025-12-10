@@ -146,8 +146,12 @@ class MFIDeviceViewController: BlueToothBaseViewController {
     // MARK: - Device Management
     
     private func refreshDevices() {
+        self.showActivity()
         mfiManager.refreshDevices()
         updateDeviceList()
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: {[weak self] in
+            self?.hideActivity()
+        })
     }
     
     // MARK: - Timer Management
