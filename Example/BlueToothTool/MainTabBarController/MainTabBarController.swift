@@ -21,6 +21,7 @@ class MainTabBarController: BaseTabBarController {
         // 创建设备页面
         let deviceVC = DeviceViewController()
         let deviceNav = UINavigationController(rootViewController: deviceVC)
+        configureNavigationBarAppearance(for: deviceNav)
         deviceNav.tabBarItem = UITabBarItem(
             title: "设备",
             image: UIImage(systemName: "antenna.radiowaves.left.and.right"),
@@ -30,6 +31,7 @@ class MainTabBarController: BaseTabBarController {
         // 创建日志页面
         let logVC = LogViewController()
         let logNav = UINavigationController(rootViewController: logVC)
+        configureNavigationBarAppearance(for: logNav)
         logNav.tabBarItem = UITabBarItem(
             title: "日志",
             image: UIImage(systemName: "doc.text"),
@@ -39,6 +41,7 @@ class MainTabBarController: BaseTabBarController {
         // 创建数据包页面
         let dataPackageVC = DataPackageViewController()
         let dataPackageNav = UINavigationController(rootViewController: dataPackageVC)
+        configureNavigationBarAppearance(for: dataPackageNav)
         dataPackageNav.tabBarItem = UITabBarItem(
             title: "数据包",
             image: UIImage(systemName: "chart.bar"),
@@ -48,6 +51,7 @@ class MainTabBarController: BaseTabBarController {
         // 创建设置页面
         let settingVC = SettingViewController()
         let settingNav = UINavigationController(rootViewController: settingVC)
+        configureNavigationBarAppearance(for: settingNav)
         settingNav.tabBarItem = UITabBarItem(
             title: "设置",
             image: UIImage(systemName: "gear"),
@@ -59,6 +63,58 @@ class MainTabBarController: BaseTabBarController {
         
         // 配置TabBar外观
         configureTabBarAppearance()
+    }
+    
+    /// 配置导航栏外观，确保整个 app 风格一致
+    private func configureNavigationBarAppearance(for navigationController: UINavigationController) {
+        let navigationBar = navigationController.navigationBar
+        
+        // iOS 15+ 使用 UINavigationBarAppearance
+        if #available(iOS 15.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = Color.lakeBlue
+            
+            // 设置标题颜色
+            appearance.titleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            appearance.largeTitleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            
+            // 设置按钮颜色
+            appearance.buttonAppearance.normal.titleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            appearance.doneButtonAppearance.normal.titleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            
+            // 设置返回按钮颜色
+            appearance.backButtonAppearance.normal.titleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            
+            // 应用外观配置
+            navigationBar.standardAppearance = appearance
+            navigationBar.scrollEdgeAppearance = appearance
+            navigationBar.compactAppearance = appearance
+            
+            // 设置按钮颜色（兼容旧版本）
+            navigationBar.tintColor = Color.white
+        } else {
+            // iOS 15 以下版本使用旧 API
+            navigationBar.backgroundColor = Color.lakeBlue
+            navigationBar.barTintColor = Color.lakeBlue
+            navigationBar.tintColor = Color.white
+            navigationBar.titleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+            navigationBar.largeTitleTextAttributes = [
+                .foregroundColor: Color.white
+            ]
+        }
     }
     
     private func configureTabBarAppearance() {

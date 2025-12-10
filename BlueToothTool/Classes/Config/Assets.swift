@@ -11,6 +11,7 @@ import SwifterSwift
 typealias Color = Assets.Color
 typealias ImageName = Assets.ImageName
 
+public
 struct Assets {
     struct Color {
         static let purple = #colorLiteral(red: 0.4705882353, green: 0.3098039216, blue: 0.8196078431, alpha: 1) // UIColor(hex: 0x7045FF)!
@@ -62,6 +63,7 @@ struct Assets {
         static let toastError = "toast-error"
         static let toastTip = "toast-tip"
     }
+    public
     enum ToastImageType {
         case none
         case completed

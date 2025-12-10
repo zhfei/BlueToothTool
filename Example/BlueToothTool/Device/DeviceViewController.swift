@@ -53,6 +53,9 @@ class DeviceViewController: BlueToothBaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        allDevices.removeAll()
+        filteredDevices.removeAll()
+        
         setupUI()
         setupBLEManager()
         startScanning()
@@ -130,6 +133,11 @@ class DeviceViewController: BlueToothBaseViewController {
             
         }
         
+        bleManager.onStopScan = { [weak self] in
+            self?.updateDeviceList()
+            self?.hideActivity()
+        }
+        
         // 设置蓝牙状态变化回调
         bleManager.onBluetoothStateChanged = { [weak self] state in
             DispatchQueue.main.async {
@@ -151,14 +159,12 @@ class DeviceViewController: BlueToothBaseViewController {
     // MARK: - BLE Scanning
     
     private func startScanning() {
+        self.showActivity()
         // 停止当前扫描
         stopScanning()
         
         // 清空设备列表
         bleManager.clearDevices()
-        allDevices.removeAll()
-        filteredDevices.removeAll()
-        tableView.reloadData()
         
         // 重新开始扫描
         bleManager.startScanning()
@@ -240,6 +246,7 @@ extension DeviceViewController: UITableViewDelegate {
         
         // 跳转到设备详情页
         let detailVC = DeviceDetailViewController()
+        detailVC.hidesBottomBarWhenPushed = true
         detailVC.device = device
         PageManager.pushViewController(detailVC, animated: true)
     }

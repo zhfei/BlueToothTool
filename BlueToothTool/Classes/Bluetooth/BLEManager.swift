@@ -13,6 +13,7 @@ public typealias BLEDeviceDiscoveredCallback = (BLEDeviceModel) -> Void
 
 /// BLE 设备更新回调
 public typealias BLEDeviceUpdatedCallback = (BLEDeviceModel) -> Void
+public typealias BLEVoidCallback = () -> Void
 
 /// BLE 管理工具类
 public class BLEManager: NSObject {
@@ -41,6 +42,9 @@ public class BLEManager: NSObject {
     
     /// 设备更新回调
     public var onDeviceUpdated: BLEDeviceUpdatedCallback?
+    
+    /// 设备更新回调
+    public var onStopScan: BLEVoidCallback?
     
     /// 蓝牙状态变化回调
     public var onBluetoothStateChanged: ((CBManagerState) -> Void)?
@@ -100,6 +104,8 @@ public class BLEManager: NSObject {
         }
         
         centralManager.stopScan()
+        
+        onStopScan?()
         print("停止扫描 BLE 设备")
     }
     

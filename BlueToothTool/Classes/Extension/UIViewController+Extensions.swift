@@ -7,6 +7,7 @@
 
 import UIKit
 
+public
 extension UIViewController {
     //关闭右滑手势（禁止右滑关闭 navigationController 子页面）
     
@@ -83,6 +84,7 @@ extension UIViewController: UIGestureRecognizerDelegate {
 }
 
 //!!!: Toast
+public
 extension UIViewController {
     func showAlert(
         title: String? = nil,

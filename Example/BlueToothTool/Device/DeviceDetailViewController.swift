@@ -267,6 +267,7 @@ class DeviceDetailViewController: BlueToothBaseViewController {
         }
         
         // 连接设备
+        self.showActivity()
         BLEManager.shared.centralManager.connect(peripheral, options: nil)
     }
     
@@ -275,6 +276,7 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     private func setupBLEManagerCallbacks() {
         // 设备连接成功回调
         BLEManager.shared.onDeviceConnected = { [weak self] peripheral in
+            self?.hideActivity()
             guard let self = self,
                   self.device?.peripheral?.identifier == peripheral.identifier else {
                 return

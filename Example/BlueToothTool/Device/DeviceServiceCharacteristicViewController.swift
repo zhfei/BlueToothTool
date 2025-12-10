@@ -110,7 +110,7 @@ class DeviceServiceCharacteristicViewController: BlueToothBaseViewController {
     }()
 
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
