@@ -39,11 +39,11 @@ class MainTabBarController: BaseTabBarController {
         )
         
         // 创建数据包页面
-        let dataPackageVC = DataPackageViewController()
+        let dataPackageVC = CMDDebugViewController()
         let dataPackageNav = UINavigationController(rootViewController: dataPackageVC)
         configureNavigationBarAppearance(for: dataPackageNav)
         dataPackageNav.tabBarItem = UITabBarItem(
-            title: "数据包",
+            title: "CMD调试",
             image: UIImage(systemName: "chart.bar"),
             selectedImage: UIImage(systemName: "chart.bar")
         )

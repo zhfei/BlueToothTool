@@ -1,14 +1,14 @@
 //
-//  MFIDeviceDetailViewController.swift
+//  CMDDebugDetailViewController.swift
 //  BlueToothTool_Example
 //
-//  Created by 周飞 on 2025/12/10.
+//  Created by 周飞 on 2025/12/11.
 //  Copyright © 2025 CocoaPods. All rights reserved.
 //
 
 import UIKit
 
-class MFIDeviceDetailViewController: UIViewController {
+class CMDDebugDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

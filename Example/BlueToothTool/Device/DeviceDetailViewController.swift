@@ -9,6 +9,7 @@
 import UIKit
 import SnapKit
 import BlueToothTool
+import ExternalAccessory
 
 class DeviceDetailViewController: BlueToothBaseViewController {
     
@@ -36,9 +37,13 @@ class DeviceDetailViewController: BlueToothBaseViewController {
         setupUI()
         updateDeviceInfo()
         
-        // 只有 BLE 设备才需要连接按钮和回调
-        if device != nil {
+        // 设置连接按钮（BLE 或 MFI 设备）
+        if device != nil || mfiDevice != nil {
             setupConnectButton()
+        }
+        
+        // 只有 BLE 设备才需要回调
+        if device != nil {
             setupBLEManagerCallbacks()
         }
     }
@@ -376,9 +381,22 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     // MARK: - Connect Button
     
     private func setupConnectButton() {
-        // 检查是否存在 kCBAdvDataServiceUUIDs
+        var shouldShowButton = false
+        
+        // BLE 设备：检查是否存在 kCBAdvDataServiceUUIDs
         if let advertisementData = device?.advertisementData,
            advertisementData["kCBAdvDataServiceUUIDs"] != nil {
+            shouldShowButton = true
+        }
+        
+        // MFI 设备：检查是否已连接且有可用协议
+        if let mfiDevice = mfiDevice,
+           mfiDevice.isConnected,
+           !mfiDevice.protocolStrings.isEmpty {
+            shouldShowButton = true
+        }
+        
+        if shouldShowButton {
             let connectButton = UIBarButtonItem(
                 title: "连接设备",
                 style: .plain,
@@ -390,14 +408,66 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     }
     
     @objc private func connectButtonTapped() {
-        guard let peripheral = device?.peripheral else {
-            print("设备外设不存在")
+        // BLE 设备连接
+        if let device = device {
+            guard let peripheral = device.peripheral else {
+                print("设备外设不存在")
+                return
+            }
+            
+            // 连接设备
+            self.showActivity()
+            BLEManager.shared.centralManager.connect(peripheral, options: nil)
             return
         }
         
-        // 连接设备
-        self.showActivity()
-        BLEManager.shared.centralManager.connect(peripheral, options: nil)
+        // MFI 设备连接
+        if let mfiDevice = mfiDevice {
+            // 检查设备是否已连接且有可用协议
+            guard mfiDevice.isConnected else {
+                let alert = UIAlertController(
+                    title: "提示",
+                    message: "设备未连接",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
+                present(alert, animated: true)
+                return
+            }
+            
+            guard !mfiDevice.protocolStrings.isEmpty else {
+                let alert = UIAlertController(
+                    title: "提示",
+                    message: "设备没有可用协议",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
+                present(alert, animated: true)
+                return
+            }
+            
+            // 显示协议选择弹框
+            let alert = UIAlertController(
+                title: "选择协议",
+                message: "请选择要建立连接的协议",
+                preferredStyle: .actionSheet
+            )
+            
+            for protocolString in mfiDevice.protocolStrings {
+                alert.addAction(UIAlertAction(title: protocolString, style: .default) { [weak self] _ in
+                    self?.createMFISession(protocolString: protocolString)
+                })
+            }
+            
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            
+            // iPad 支持
+            if let popover = alert.popoverPresentationController {
+                popover.barButtonItem = navigationItem.rightBarButtonItem
+            }
+            
+            present(alert, animated: true)
+        }
     }
     
     // MARK: - BLE Manager Callbacks
@@ -431,5 +501,75 @@ class DeviceDetailViewController: BlueToothBaseViewController {
             serviceDetailVC.services = services
             PageManager.pushViewController(serviceDetailVC, animated: true)
         }
+    }
+    
+    // MARK: - MFI Session
+    
+    private func createMFISession(protocolString: String) {
+        guard let mfiDevice = mfiDevice else {
+            let alert = UIAlertController(
+                title: "错误",
+                message: "设备不存在",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        guard let accessory = mfiDevice.accessory else {
+            let alert = UIAlertController(
+                title: "错误",
+                message: "设备外设不存在",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        guard accessory.isConnected else {
+            let alert = UIAlertController(
+                title: "错误",
+                message: "设备未连接",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        guard accessory.protocolStrings.contains(protocolString) else {
+            let alert = UIAlertController(
+                title: "错误",
+                message: "设备不支持该协议",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // 创建会话
+        let session = EASession(accessory: accessory, forProtocol: protocolString)
+        
+        guard session != nil else {
+            let alert = UIAlertController(
+                title: "错误",
+                message: "创建会话失败",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // 跳转到会话详情页
+        let detailVC = MFIDeviceConnectDetailViewController()
+        detailVC.hidesBottomBarWhenPushed = true
+        detailVC.device = mfiDevice
+        detailVC.session = session
+        detailVC.protocolString = protocolString
+        PageManager.pushViewController(detailVC, animated: true)
     }
 }
