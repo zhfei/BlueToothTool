@@ -18,7 +18,7 @@
 		911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D12E77365800EC96DF /* DeviceViewController.swift */; };
 		911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */; };
 		911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */; };
-		911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* SettingViewController.swift */; };
+		911421D92E77370D00EC96DF /* MineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* MineViewController.swift */; };
 		914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914934212EE82A860014C4AF /* BLEDeviceCell.swift */; };
 		9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */; };
 		9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */; };
@@ -61,7 +61,7 @@
 		911421D12E77365800EC96DF /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
 		911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueToothBaseViewController.swift; sourceTree = "<group>"; };
 		911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFIDeviceViewController.swift; sourceTree = "<group>"; };
-		911421D82E77370D00EC96DF /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		911421D82E77370D00EC96DF /* MineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MineViewController.swift; sourceTree = "<group>"; };
 		914934212EE82A860014C4AF /* BLEDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceCell.swift; sourceTree = "<group>"; };
 		9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailViewController.swift; sourceTree = "<group>"; };
 		9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceDetailViewController.swift; sourceTree = "<group>"; };
@@ -138,7 +138,7 @@
 				911421CB2E77362600EC96DF /* CMDDebug */,
 				911421CC2E77362600EC96DF /* Device */,
 				911421CD2E77362600EC96DF /* MFI */,
-				911421CE2E77362600EC96DF /* Setting */,
+				911421CE2E77362600EC96DF /* Mine */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				918473332EA25E3200411097 /* Assets.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
@@ -219,12 +219,12 @@
 			path = MFI;
 			sourceTree = "<group>";
 		};
-		911421CE2E77362600EC96DF /* Setting */ = {
+		911421CE2E77362600EC96DF /* Mine */ = {
 			isa = PBXGroup;
 			children = (
-				911421D82E77370D00EC96DF /* SettingViewController.swift */,
+				911421D82E77370D00EC96DF /* MineViewController.swift */,
 			);
-			path = Setting;
+			path = Mine;
 			sourceTree = "<group>";
 		};
 		911421D32E77367D00EC96DF /* Base */ = {
@@ -433,7 +433,7 @@
 				914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */,
 				911421D02E77364700EC96DF /* CMDDebugViewController.swift in Sources */,
 				9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */,
-				911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */,
+				911421D92E77370D00EC96DF /* MineViewController.swift in Sources */,
 				9179C77D2EE9AEE400B12882 /* MFIDeviceCell.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);

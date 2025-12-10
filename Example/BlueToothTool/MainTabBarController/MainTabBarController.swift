@@ -49,11 +49,11 @@ class MainTabBarController: BaseTabBarController {
         )
         
         // 创建设置页面
-        let settingVC = SettingViewController()
+        let settingVC = MineViewController()
         let settingNav = UINavigationController(rootViewController: settingVC)
         configureNavigationBarAppearance(for: settingNav)
         settingNav.tabBarItem = UITabBarItem(
-            title: "设置",
+            title: "我的",
             image: UIImage(systemName: "gear"),
             selectedImage: UIImage(systemName: "gear")
         )
