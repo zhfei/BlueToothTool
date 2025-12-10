@@ -15,6 +15,7 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     // MARK: - Properties
     
     var device: BLEDeviceModel?
+    var mfiDevice: MFIDeviceModel?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -34,8 +35,12 @@ class DeviceDetailViewController: BlueToothBaseViewController {
         super.viewDidLoad()
         setupUI()
         updateDeviceInfo()
-        setupConnectButton()
-        setupBLEManagerCallbacks()
+        
+        // 只有 BLE 设备才需要连接按钮和回调
+        if device != nil {
+            setupConnectButton()
+            setupBLEManagerCallbacks()
+        }
     }
     
     // MARK: - Setup
@@ -63,13 +68,27 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     }
     
     private func updateDeviceInfo() {
-        guard let device = device else { return }
-        
         // 清空之前的内容
         contentView.subviews.forEach { $0.removeFromSuperview() }
         
         var lastView: UIView?
         
+        // 根据设备类型显示不同的信息
+        if let device = device {
+            updateBLEDeviceInfo(device: device, lastView: &lastView)
+        } else if let mfiDevice = mfiDevice {
+            updateMFIDeviceInfo(device: mfiDevice, lastView: &lastView)
+        }
+        
+        // 设置 contentView 的底部约束
+        if let lastView = lastView {
+            lastView.snp.makeConstraints { make in
+                make.bottom.equalToSuperview().offset(-16)
+            }
+        }
+    }
+    
+    private func updateBLEDeviceInfo(device: BLEDeviceModel, lastView: inout UIView?) {
         // 设备基本信息
         let deviceInfoSection = createSectionView(title: "设备信息")
         contentView.addSubview(deviceInfoSection)
@@ -157,11 +176,121 @@ class DeviceDetailViewController: BlueToothBaseViewController {
                 lastView = broadcastItem
             }
         }
+    }
+    
+    private func updateMFIDeviceInfo(device: MFIDeviceModel, lastView: inout UIView?) {
+        // 设备基本信息
+        let deviceInfoSection = createSectionView(title: "设备信息")
+        contentView.addSubview(deviceInfoSection)
+        deviceInfoSection.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.right.equalToSuperview()
+        }
+        lastView = deviceInfoSection
         
-        // 设置 contentView 的底部约束
-        if let lastView = lastView {
-            lastView.snp.makeConstraints { make in
-                make.bottom.equalToSuperview().offset(-16)
+        // 设备名称
+        let nameItem = createInfoItem(title: "设备名称", value: device.name)
+        contentView.addSubview(nameItem)
+        nameItem.snp.makeConstraints { make in
+            make.top.equalTo(deviceInfoSection.snp.bottom).offset(12)
+            make.left.right.equalToSuperview()
+        }
+        lastView = nameItem
+        
+        // 连接ID
+        let connectionIDItem = createInfoItem(title: "连接ID", value: "\(device.connectionID)")
+        contentView.addSubview(connectionIDItem)
+        connectionIDItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = connectionIDItem
+        
+        // 制造商
+        let manufacturerItem = createInfoItem(title: "制造商", value: device.manufacturer)
+        contentView.addSubview(manufacturerItem)
+        manufacturerItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = manufacturerItem
+        
+        // 型号
+        let modelItem = createInfoItem(title: "型号", value: device.modelNumber.isEmpty ? "未知" : device.modelNumber)
+        contentView.addSubview(modelItem)
+        modelItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = modelItem
+        
+        // 序列号
+        let serialItem = createInfoItem(title: "序列号", value: device.serialNumber.isEmpty ? "未知" : device.serialNumber)
+        contentView.addSubview(serialItem)
+        serialItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = serialItem
+        
+        // 固件版本
+        let firmwareItem = createInfoItem(title: "固件版本", value: device.firmwareRevision.isEmpty ? "未知" : device.firmwareRevision)
+        contentView.addSubview(firmwareItem)
+        firmwareItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = firmwareItem
+        
+        // 硬件版本
+        let hardwareItem = createInfoItem(title: "硬件版本", value: device.hardwareRevision.isEmpty ? "未知" : device.hardwareRevision)
+        contentView.addSubview(hardwareItem)
+        hardwareItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = hardwareItem
+        
+        // 连接状态
+        let statusItem = createInfoItem(title: "连接状态", value: device.isConnected ? "已连接" : "未连接")
+        contentView.addSubview(statusItem)
+        statusItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = statusItem
+        
+        // 发现时间
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let timeText = dateFormatter.string(from: device.discoveredTime)
+        let timeItem = createInfoItem(title: "发现时间", value: timeText)
+        contentView.addSubview(timeItem)
+        timeItem.snp.makeConstraints { make in
+            make.top.equalTo(lastView!.snp.bottom).offset(8)
+            make.left.right.equalToSuperview()
+        }
+        lastView = timeItem
+        
+        // 协议信息
+        if !device.protocolStrings.isEmpty {
+            let protocolSection = createSectionView(title: "协议信息")
+            contentView.addSubview(protocolSection)
+            protocolSection.snp.makeConstraints { make in
+                make.top.equalTo(lastView!.snp.bottom).offset(24)
+                make.left.right.equalToSuperview()
+            }
+            lastView = protocolSection
+            
+            // 遍历协议字符串
+            for (index, protocolString) in device.protocolStrings.enumerated() {
+                let protocolItem = createInfoItem(title: "协议 \(index + 1)", value: protocolString)
+                contentView.addSubview(protocolItem)
+                protocolItem.snp.makeConstraints { make in
+                    make.top.equalTo(lastView!.snp.bottom).offset(8)
+                    make.left.right.equalToSuperview()
+                }
+                lastView = protocolItem
             }
         }
     }

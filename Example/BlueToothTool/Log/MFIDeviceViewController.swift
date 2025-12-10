@@ -1,5 +1,5 @@
 //
-//  DeviceViewController.swift
+//  MFIDeviceViewController.swift
 //  BlueToothTool_Example
 //
 //  Created by 周飞 on 2025/9/15.
@@ -10,18 +10,18 @@ import UIKit
 import SnapKit
 import BlueToothTool
 
-class DeviceViewController: BlueToothBaseViewController {
+class MFIDeviceViewController: BlueToothBaseViewController {
     
     // MARK: - Properties
     
-    private let bleManager = BLEManager.shared
-    private var allDevices: [BLEDeviceModel] = []
-    private var filteredDevices: [BLEDeviceModel] = []
+    private let mfiManager = MFIManager.shared
+    private var allDevices: [MFIDeviceModel] = []
+    private var filteredDevices: [MFIDeviceModel] = []
     private var refreshTimer: Timer?
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "搜索设备名称或UUID"
+        searchBar.placeholder = "搜索设备名称或制造商"
         searchBar.backgroundColor = Color.lakeBlue
         searchBar.searchBarStyle = .minimal
         searchBar.tintColor = Color.white
@@ -57,13 +57,12 @@ class DeviceViewController: BlueToothBaseViewController {
         filteredDevices.removeAll()
         
         setupUI()
-        setupBLEManager()
-        startScanning()
+        setupMFIManager()
+        refreshDevices()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        stopScanning()
         stopRefreshTimer()
     }
     
@@ -74,13 +73,7 @@ class DeviceViewController: BlueToothBaseViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "BLE设备"
-        // 设置导航栏样式
-        navigationController?.navigationBar.backgroundColor = Color.lakeBlue
-        navigationController?.navigationBar.tintColor = Color.white
-        navigationController?.navigationBar.titleTextAttributes = [
-            .foregroundColor: Color.white
-        ]
+        title = "MFI设备"
         
         // 添加搜索容器视图
         view.addSubview(searchContainerView)
@@ -111,41 +104,35 @@ class DeviceViewController: BlueToothBaseViewController {
         view.addSubview(tableView)
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(BLEDeviceCell.self, forCellReuseIdentifier: "BLEDeviceCell")
+        tableView.register(MFIDeviceCell.self, forCellReuseIdentifier: "MFIDeviceCell")
         tableView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom)
             make.left.right.bottom.equalToSuperview()
         }
     }
     
-    private func setupBLEManager() {
-        
-        //创建一个定时器，每3s调用一次方法self?.updateDeviceList()，刷新搜索到的设备列表
+    private func setupMFIManager() {
+        // 创建一个定时器，每3s调用一次方法刷新设备列表
         startRefreshTimer()
         
         // 设置设备发现回调
-        bleManager.onDeviceDiscovered = { [weak self] device in
-            
+        mfiManager.onDeviceDiscovered = { [weak self] device in
+            DispatchQueue.main.async {
+                self?.updateDeviceList()
+            }
         }
         
         // 设置设备更新回调
-        bleManager.onDeviceUpdated = { [weak self] device in
-            
-        }
-        
-        bleManager.onStopScan = { [weak self] in
-            self?.updateDeviceList()
-            self?.hideActivity()
-        }
-        
-        // 设置蓝牙状态变化回调
-        bleManager.onBluetoothStateChanged = { [weak self] state in
+        mfiManager.onDeviceUpdated = { [weak self] device in
             DispatchQueue.main.async {
-                if state == .poweredOn {
-                    self?.startScanning()
-                } else {
-                    self?.stopScanning()
-                }
+                self?.updateDeviceList()
+            }
+        }
+        
+        // 设置设备断开回调
+        mfiManager.onDeviceDisconnected = { [weak self] device in
+            DispatchQueue.main.async {
+                self?.updateDeviceList()
             }
         }
     }
@@ -153,25 +140,14 @@ class DeviceViewController: BlueToothBaseViewController {
     // MARK: - Actions
     
     @objc private func refreshButtonTapped() {
-        startScanning()
+        refreshDevices()
     }
     
-    // MARK: - BLE Scanning
+    // MARK: - Device Management
     
-    private func startScanning() {
-        self.showActivity()
-        // 停止当前扫描
-        stopScanning()
-        
-        // 清空设备列表
-        bleManager.clearDevices()
-        
-        // 重新开始扫描
-        bleManager.startScanning()
-    }
-    
-    private func stopScanning() {
-        bleManager.stopScanning()
+    private func refreshDevices() {
+        mfiManager.refreshDevices()
+        updateDeviceList()
     }
     
     // MARK: - Timer Management
@@ -197,7 +173,7 @@ class DeviceViewController: BlueToothBaseViewController {
     // MARK: - Data Management
     
     private func updateDeviceList() {
-        allDevices = bleManager.devices
+        allDevices = mfiManager.devices
         filterDevices()
     }
     
@@ -211,7 +187,9 @@ class DeviceViewController: BlueToothBaseViewController {
         let lowercasedSearchText = searchText.lowercased()
         filteredDevices = allDevices.filter { device in
             device.name.lowercased().contains(lowercasedSearchText) ||
-            device.identifier.lowercased().contains(lowercasedSearchText)
+            device.manufacturer.lowercased().contains(lowercasedSearchText) ||
+            device.modelNumber.lowercased().contains(lowercasedSearchText) ||
+            device.serialNumber.lowercased().contains(lowercasedSearchText)
         }
         
         tableView.reloadData()
@@ -219,14 +197,14 @@ class DeviceViewController: BlueToothBaseViewController {
 }
 
 // MARK: - UITableViewDataSource
-extension DeviceViewController: UITableViewDataSource {
+extension MFIDeviceViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredDevices.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BLEDeviceCell", for: indexPath) as! BLEDeviceCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MFIDeviceCell", for: indexPath) as! MFIDeviceCell
         let device = filteredDevices[indexPath.row]
         cell.configure(with: device)
         return cell
@@ -234,7 +212,7 @@ extension DeviceViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-extension DeviceViewController: UITableViewDelegate {
+extension MFIDeviceViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120
@@ -247,13 +225,13 @@ extension DeviceViewController: UITableViewDelegate {
         // 跳转到设备详情页
         let detailVC = DeviceDetailViewController()
         detailVC.hidesBottomBarWhenPushed = true
-        detailVC.device = device
+        detailVC.mfiDevice = device
         PageManager.pushViewController(detailVC, animated: true)
     }
 }
 
 // MARK: - UISearchBarDelegate
-extension DeviceViewController: UISearchBarDelegate {
+extension MFIDeviceViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         filterDevices()

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,12 +17,14 @@
 		911421D02E77364700EC96DF /* DataPackageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421CF2E77364700EC96DF /* DataPackageViewController.swift */; };
 		911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D12E77365800EC96DF /* DeviceViewController.swift */; };
 		911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */; };
-		911421D72E7736F300EC96DF /* LogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D62E7736F300EC96DF /* LogViewController.swift */; };
+		911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */; };
 		911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* SettingViewController.swift */; };
 		914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914934212EE82A860014C4AF /* BLEDeviceCell.swift */; };
 		9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */; };
 		9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */; };
 		9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76C2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift */; };
+		9179C77B2EE9A58E00B12882 /* MFIDeviceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C77A2EE9A58E00B12882 /* MFIDeviceDetailViewController.swift */; };
+		9179C77D2EE9AEE400B12882 /* MFIDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C77C2EE9AEE400B12882 /* MFIDeviceCell.swift */; };
 		E0E13DD158B6212922A2A7CF /* Pods_BlueToothTool_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D11FFF74D9EAF8947B906C7 /* Pods_BlueToothTool_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -57,19 +59,27 @@
 		911421CF2E77364700EC96DF /* DataPackageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataPackageViewController.swift; sourceTree = "<group>"; };
 		911421D12E77365800EC96DF /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
 		911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueToothBaseViewController.swift; sourceTree = "<group>"; };
-		911421D62E7736F300EC96DF /* LogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewController.swift; sourceTree = "<group>"; };
+		911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFIDeviceViewController.swift; sourceTree = "<group>"; };
 		911421D82E77370D00EC96DF /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		914934212EE82A860014C4AF /* BLEDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceCell.swift; sourceTree = "<group>"; };
 		9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailViewController.swift; sourceTree = "<group>"; };
 		9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceDetailViewController.swift; sourceTree = "<group>"; };
 		9179C76C2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceCharacteristicViewController.swift; sourceTree = "<group>"; };
+		9179C77A2EE9A58E00B12882 /* MFIDeviceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFIDeviceDetailViewController.swift; sourceTree = "<group>"; };
+		9179C77C2EE9AEE400B12882 /* MFIDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFIDeviceCell.swift; sourceTree = "<group>"; };
 		918473332EA25E3200411097 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
 		A94DE7ED835A9BDE3924E63C /* Pods-BlueToothTool_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueToothTool_Tests.release.xcconfig"; path = "Target Support Files/Pods-BlueToothTool_Tests/Pods-BlueToothTool_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		BCB80E7ADB706892849053E3 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		911421E22E779E0400EC96DF /* MainTabBarController */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MainTabBarController; sourceTree = "<group>"; };
+		911421E22E779E0400EC96DF /* MainTabBarController */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = MainTabBarController;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,7 +211,9 @@
 		911421CD2E77362600EC96DF /* Log */ = {
 			isa = PBXGroup;
 			children = (
-				911421D62E7736F300EC96DF /* LogViewController.swift */,
+				9179C77C2EE9AEE400B12882 /* MFIDeviceCell.swift */,
+				911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */,
+				9179C77A2EE9A58E00B12882 /* MFIDeviceDetailViewController.swift */,
 			);
 			path = Log;
 			sourceTree = "<group>";
@@ -301,7 +313,6 @@
 				};
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "BlueToothTool" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -310,6 +321,7 @@
 				Base,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -368,67 +380,12 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BlueToothTool_Example/Pods-BlueToothTool_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueToothTool/BlueToothTool.framework",
-				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
-				"${BUILT_PRODUCTS_DIR}/DTCoreText/DTCoreText.framework",
-				"${BUILT_PRODUCTS_DIR}/DTFoundation/DTFoundation.framework",
-				"${BUILT_PRODUCTS_DIR}/DoraemonKit/DoraemonKit.framework",
-				"${BUILT_PRODUCTS_DIR}/Down/Down.framework",
-				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
-				"${BUILT_PRODUCTS_DIR}/GCDWebServer/GCDWebServer.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardCore/IQKeyboardCore.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardNotification/IQKeyboardNotification.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardReturnManager/IQKeyboardReturnManager.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbar/IQKeyboardToolbar.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
-				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
-				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
-				"${BUILT_PRODUCTS_DIR}/Localize-Swift/Localize_Swift.framework",
-				"${BUILT_PRODUCTS_DIR}/LookinServer/LookinServer.framework",
-				"${BUILT_PRODUCTS_DIR}/MGJRouter_Swift/MGJRouter_Swift.framework",
-				"${BUILT_PRODUCTS_DIR}/MMKV/MMKV.framework",
-				"${BUILT_PRODUCTS_DIR}/MMKVCore/MMKVCore.framework",
-				"${BUILT_PRODUCTS_DIR}/PullToRefreshKit/PullToRefreshKit.framework",
-				"${BUILT_PRODUCTS_DIR}/ReerCodable/ReerCodable.framework",
-				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
-				"${BUILT_PRODUCTS_DIR}/SwifterSwift/SwifterSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/lottie-ios/Lottie.framework",
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BlueToothTool_Example/Pods-BlueToothTool_Example-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BlueToothTool.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DTCoreText.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DTFoundation.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DoraemonKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Down.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GCDWebServer.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManagerSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardNotification.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardReturnManager.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbar.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Localize_Swift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LookinServer.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MGJRouter_Swift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MMKV.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MMKVCore.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PullToRefreshKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReerCodable.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwifterSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Lottie.framework",
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BlueToothTool_Example/Pods-BlueToothTool_Example-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -464,16 +421,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9179C77B2EE9A58E00B12882 /* MFIDeviceDetailViewController.swift in Sources */,
 				911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */,
 				911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
-				911421D72E7736F300EC96DF /* LogViewController.swift in Sources */,
+				911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */,
 				9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */,
 				9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */,
 				914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */,
 				911421D02E77364700EC96DF /* DataPackageViewController.swift in Sources */,
 				9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */,
 				911421D92E77370D00EC96DF /* SettingViewController.swift in Sources */,
+				9179C77D2EE9AEE400B12882 /* MFIDeviceCell.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

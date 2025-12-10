@@ -23,17 +23,17 @@ class MainTabBarController: BaseTabBarController {
         let deviceNav = UINavigationController(rootViewController: deviceVC)
         configureNavigationBarAppearance(for: deviceNav)
         deviceNav.tabBarItem = UITabBarItem(
-            title: "设备",
+            title: "BLE设备",
             image: UIImage(systemName: "antenna.radiowaves.left.and.right"),
             selectedImage: UIImage(systemName: "antenna.radiowaves.left.and.right")
         )
         
         // 创建日志页面
-        let logVC = LogViewController()
+        let logVC = MFIDeviceViewController()
         let logNav = UINavigationController(rootViewController: logVC)
         configureNavigationBarAppearance(for: logNav)
         logNav.tabBarItem = UITabBarItem(
-            title: "日志",
+            title: "MFI设备",
             image: UIImage(systemName: "doc.text"),
             selectedImage: UIImage(systemName: "doc.text")
         )
