@@ -14,6 +14,8 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		9113C10A2EF0725F00D55DF9 /* CMDListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C1092EF0725F00D55DF9 /* CMDListViewController.swift */; };
+		9113C10C2EF0743B00D55DF9 /* CommandItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C10B2EF0743B00D55DF9 /* CommandItemCell.swift */; };
 		911421D02E77364700EC96DF /* CMDDebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421CF2E77364700EC96DF /* CMDDebugViewController.swift */; };
 		911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D12E77365800EC96DF /* DeviceViewController.swift */; };
 		911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */; };
@@ -58,6 +60,8 @@
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		865A20DBAC9CF86C34FD2E3F /* Pods_BlueToothTool_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlueToothTool_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D11FFF74D9EAF8947B906C7 /* Pods_BlueToothTool_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BlueToothTool_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9113C1092EF0725F00D55DF9 /* CMDListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDListViewController.swift; sourceTree = "<group>"; };
+		9113C10B2EF0743B00D55DF9 /* CommandItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandItemCell.swift; sourceTree = "<group>"; };
 		911421CF2E77364700EC96DF /* CMDDebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDDebugViewController.swift; sourceTree = "<group>"; };
 		911421D12E77365800EC96DF /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
 		911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueToothBaseViewController.swift; sourceTree = "<group>"; };
@@ -224,8 +228,10 @@
 		911421CE2E77362600EC96DF /* Mine */ = {
 			isa = PBXGroup;
 			children = (
+				9113C10B2EF0743B00D55DF9 /* CommandItemCell.swift */,
 				911421D82E77370D00EC96DF /* MineViewController.swift */,
 				9179C7882EEA3D0200B12882 /* AddCMDViewController.swift */,
+				9113C1092EF0725F00D55DF9 /* CMDListViewController.swift */,
 			);
 			path = Mine;
 			sourceTree = "<group>";
@@ -427,9 +433,11 @@
 			files = (
 				9179C77B2EE9A58E00B12882 /* MFIDeviceConnectDetailViewController.swift in Sources */,
 				911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */,
+				9113C10C2EF0743B00D55DF9 /* CommandItemCell.swift in Sources */,
 				9179C7872EEA377100B12882 /* CMDDebugDetailViewController.swift in Sources */,
 				911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				9113C10A2EF0725F00D55DF9 /* CMDListViewController.swift in Sources */,
 				911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */,
 				9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */,
 				9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */,

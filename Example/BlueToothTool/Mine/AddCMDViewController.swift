@@ -112,6 +112,38 @@ class AddCMDViewController: BlueToothBaseViewController {
         return label
     }()
     
+    private let cmdListCard: UIView = {
+        let view = UIView()
+        view.backgroundColor = Color.white
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
+    private let cmdListTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "最近添加的指令"
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = Color.primaryText
+        return label
+    }()
+    
+    private let moreButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("查看更多", for: .normal)
+        button.setTitleColor(Color.lakeBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
+        return button
+    }()
+    
+    private let cmdListTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        return tableView
+    }()
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -120,6 +152,27 @@ class AddCMDViewController: BlueToothBaseViewController {
         setupNavigationBar()
         loadCommands()
         setupTextViewPlaceholder()
+        refreshCommandList()
+        
+        // 点击页面空白区域，关闭键盘
+        setupTapGestureToDismissKeyboard()
+    }
+    
+    // MARK: - Keyboard Dismiss
+    
+    private func setupTapGestureToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        refreshCommandList()
     }
     
     // MARK: - Setup
@@ -194,9 +247,50 @@ class AddCMDViewController: BlueToothBaseViewController {
         
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         
+        // 指令列表卡片
+        contentView.addSubview(cmdListCard)
+        cmdListCard.snp.makeConstraints { make in
+            make.top.equalTo(inputCardView.snp.bottom).offset(16)
+            make.left.equalToSuperview().offset(16)
+            make.right.equalToSuperview().offset(-16)
+        }
+        
+        // 标题和查看更多按钮的容器
+        let headerView = UIView()
+        cmdListCard.addSubview(headerView)
+        headerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.right.equalToSuperview().inset(16)
+            make.height.equalTo(24)
+        }
+        
+        headerView.addSubview(cmdListTitleLabel)
+        cmdListTitleLabel.snp.makeConstraints { make in
+            make.left.centerY.equalToSuperview()
+        }
+        
+        headerView.addSubview(moreButton)
+        moreButton.snp.makeConstraints { make in
+            make.right.centerY.equalToSuperview()
+        }
+        moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
+        
+        // 指令列表
+        cmdListCard.addSubview(cmdListTableView)
+        cmdListTableView.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom).offset(12)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(0) // 初始高度为0，会根据内容动态调整
+            make.bottom.equalToSuperview().offset(-16)
+        }
+        
+        cmdListTableView.delegate = self
+        cmdListTableView.dataSource = self
+        cmdListTableView.register(CommandItemCell.self, forCellReuseIdentifier: "CommandItemCell")
+        
         // 设置 contentView 底部约束
         contentView.snp.makeConstraints { make in
-            make.bottom.equalTo(inputCardView.snp.bottom).offset(16)
+            make.bottom.equalTo(cmdListCard.snp.bottom).offset(16)
         }
     }
     
@@ -230,6 +324,31 @@ class AddCMDViewController: BlueToothBaseViewController {
         )
         
         navigationItem.rightBarButtonItems = [shareButton, importButton]
+    }
+    
+    // MARK: - Data Management
+    
+    /// 获取最近添加的10条指令（按创建时间倒序）
+    private var recentCommands: [CommandItem] {
+        return Array(commands.sorted(by: { $0.createTime > $1.createTime }).prefix(10))
+    }
+    
+    /// 刷新指令列表
+    private func refreshCommandList() {
+        loadCommands()
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.cmdListTableView.reloadData()
+            
+            // 动态调整 tableView 高度
+            let rowCount = self.recentCommands.count
+            let estimatedRowHeight: CGFloat = 100
+            let totalHeight = CGFloat(rowCount) * estimatedRowHeight
+            self.cmdListTableView.snp.updateConstraints { make in
+                make.height.equalTo(totalHeight)
+            }
+        }
     }
     
     // MARK: - File Management
@@ -377,6 +496,9 @@ class AddCMDViewController: BlueToothBaseViewController {
         // 保存指令
         appendCommand(command)
         
+        // 刷新指令列表
+        refreshCommandList()
+        
         // 清空输入框
         titleTextField.text = ""
         cmdTextView.text = ""
@@ -384,6 +506,11 @@ class AddCMDViewController: BlueToothBaseViewController {
         
         // 显示成功提示
         showAlert(title: "成功", message: "指令已保存：\(title)\n格式化后的指令：\(processedCmd)")
+    }
+    
+    @objc private func moreButtonTapped() {
+        let cmdListVC = CMDListViewController()
+        PageManager.pushViewController(cmdListVC, animated: true)
     }
     
     @objc private func importJSONButtonTapped() {
@@ -479,6 +606,47 @@ extension AddCMDViewController: UIDocumentPickerDelegate {
             
         } catch {
             showAlert(title: "错误", message: "JSON格式不正确：\(error.localizedDescription)")
+        }
+    }
+}
+
+// MARK: - UITableViewDataSource & UITableViewDelegate
+
+extension AddCMDViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if tableView == cmdListTableView {
+            return recentCommands.count
+        }
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if tableView == cmdListTableView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CommandItemCell", for: indexPath) as! CommandItemCell
+            let command = recentCommands[indexPath.row]
+            cell.configure(with: command)
+            return cell
+        }
+        return UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if tableView == cmdListTableView {
+            // 点击指令项时，可以填充到输入框
+            let command = recentCommands[indexPath.row]
+            titleTextField.text = command.cmdTitle
+            cmdTextView.text = command.cmd
+            placeholderLabel.isHidden = !cmdTextView.text.isEmpty
         }
     }
 }
