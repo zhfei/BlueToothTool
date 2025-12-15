@@ -9,6 +9,8 @@
 import UIKit
 import SnapKit
 import BlueToothTool
+import DZNEmptyDataSet
+import MJRefresh
 
 class MFIDeviceViewController: BlueToothBaseViewController {
     
@@ -109,6 +111,17 @@ class MFIDeviceViewController: BlueToothBaseViewController {
             make.top.equalTo(searchBar.snp.bottom)
             make.left.right.bottom.equalToSuperview()
         }
+        
+        // 配置 DZNEmptyDataSet
+        tableView.emptyDataSetSource = self
+        tableView.emptyDataSetDelegate = self
+        
+        // 配置 MJRefresh 下拉刷新
+        let header = MJRefreshNormalHeader { [weak self] in
+            self?.refreshDevices()
+        }
+        header.lastUpdatedTimeLabel?.isHidden = true
+        tableView.mj_header = header
     }
     
     private func setupMFIManager() {
@@ -151,6 +164,8 @@ class MFIDeviceViewController: BlueToothBaseViewController {
         updateDeviceList()
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: {[weak self] in
             self?.hideActivity()
+            // 结束下拉刷新动画
+            self?.tableView.mj_header?.endRefreshing()
         })
     }
     
@@ -249,5 +264,38 @@ extension MFIDeviceViewController: UISearchBarDelegate {
         searchBar.text = ""
         searchBar.resignFirstResponder()
         filterDevices()
+    }
+}
+
+// MARK: - DZNEmptyDataSetSource & DZNEmptyDataSetDelegate
+
+extension MFIDeviceViewController: DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+    
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "暂无MFI设备"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
+            .foregroundColor: UIColor.gray
+        ]
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "下拉刷新或点击刷新按钮搜索设备"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 15),
+            .foregroundColor: UIColor.lightGray
+        ]
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func emptyDataSetShouldDisplay(_ scrollView: UIScrollView!) -> Bool {
+        // 当过滤后的设备列表为空时显示空状态
+        return filteredDevices.count == 0
+    }
+    
+    func emptyDataSet(_ scrollView: UIScrollView!, didTap view: UIView!) {
+        // 点击空状态时触发刷新
+        refreshDevices()
     }
 }
