@@ -234,7 +234,7 @@ extension CMDDebugViewController: UITableViewDelegate {
             
         case 1: // MFI 设备
             let device = connectedMFIDevices[indexPath.row]
-            let detailVC = DeviceDetailViewController()
+            let detailVC = CMDMFIDebugDetailViewController()
             detailVC.mfiDevice = device
             PageManager.pushViewController(detailVC, animated: true)
             

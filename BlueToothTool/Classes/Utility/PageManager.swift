@@ -119,6 +119,26 @@ class PageManager {
         navController.popToRootViewController(animated: true)
         return false
     }
+    
+    
+    public static func popViewController(animated: Bool = true
+    ) {
+        guard let topVC = getTopViewController() else { return }
+
+        // 获取当前的导航控制器
+        var navigationController: UINavigationController?
+
+        if let nav = topVC.navigationController {
+            navigationController = nav
+        } else if let nav = topVC as? UINavigationController {
+            navigationController = nav
+        }
+
+        guard let navController = navigationController else { return }
+
+        navController.popViewController(animated: animated)
+    }
+
 
     @discardableResult
     static func popBeforeViewController(ofType viewControllerType: UIViewController.Type, animated: Bool) -> Bool {

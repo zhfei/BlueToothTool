@@ -10,7 +10,13 @@ import UIKit
 import SnapKit
 import BlueToothTool
 
+protocol CMDListViewControllerDelegate: AnyObject {
+    func didSelectCommand(_ command: CommandItem)
+}
+
 class CMDListViewController: BlueToothBaseViewController {
+    
+    weak var delegate: CMDListViewControllerDelegate?
     
     // MARK: - Properties
     
@@ -176,6 +182,15 @@ extension CMDListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let command = commands[indexPath.row]
+        
+        // 如果有代理，通知代理选择的指令
+        if let delegate = delegate {
+            delegate.didSelectCommand(command)
+            // 返回上一页
+            PageManager.popViewController(animated: true)
+        }
     }
     
     // MARK: - Editing Support
