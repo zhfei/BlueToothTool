@@ -99,13 +99,13 @@ class AddCMDViewController: BlueToothBaseViewController {
         label.font = .systemFont(ofSize: 12)
         label.textColor = Color.grayText
         label.numberOfLines = 0
-        label.text = "指令规则：\n• LL LH：指令长度（2字节，低字节+高字节），自动计算\n• CS：checksum（CS前所有字节之和的最低字节），自动计算\n• 支持手动输入或从粘贴板粘贴十六进制数据"
+        label.text = "指令规则：\n• 请输入有效的十六进制字节指令\n• 两个字节之间用空格隔开（例如：08 EE 00 00）\n• 支持手动输入或从粘贴板粘贴十六进制数据"
         return label
     }()
     
     private let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "指令内容（十六进制，例如：08 EE 00 00 00 01 01）\n支持手动输入或从粘贴板粘贴"
+        label.text = "指令内容（十六进制，例如：08 EE 00 00）\n两个字节之间用空格隔开，支持手动输入或从粘贴板粘贴"
         label.font = .systemFont(ofSize: 14)
         label.textColor = Color.grayText
         label.numberOfLines = 0
@@ -322,29 +322,15 @@ class AddCMDViewController: BlueToothBaseViewController {
         return UInt8(sum & 0xFF)
     }
     
-    /// 处理指令：计算长度和checksum
-    /// 根据指令规则：指令格式为 [数据] LL LH CS
-    /// LL LH 是数据长度（2字节），CS 是checksum
+    /// 处理指令：验证和格式化十六进制字符串
+    /// 只负责验证输入是否为有效的十六进制字节，并格式化为空格分隔的字符串
     private func processCommand(_ hexString: String) -> String? {
-        guard var dataBytes = parseHexString(hexString) else {
+        guard let dataBytes = parseHexString(hexString) else {
             return nil
         }
         
-        // 计算数据长度（不包括 LL LH 和 CS）
-        let dataLength = dataBytes.count
-        
-        // 添加 LL（低字节）和 LH（高字节）
-        let ll = UInt8(dataLength & 0xFF)
-        let lh = UInt8((dataLength >> 8) & 0xFF)
-        
-        // 计算checksum：LL + LH + 所有数据字节
-        let allBytesForChecksum: [UInt8] = [ll, lh] + dataBytes
-        let checksum = calculateChecksum(allBytesForChecksum)
-        
-        // 组合最终指令：LL LH + 数据 + CS
-        let finalBytes: [UInt8] = [ll, lh] + dataBytes + [checksum]
-        
-        return formatHexString(finalBytes)
+        // 直接格式化字节数组为空格分隔的十六进制字符串
+        return formatHexString(dataBytes)
     }
     
     /// 验证十六进制字符串格式
@@ -379,7 +365,7 @@ class AddCMDViewController: BlueToothBaseViewController {
             return
         }
         
-        // 处理指令（计算长度和checksum）
+        // 处理指令（格式化为空格分隔的十六进制字符串）
         guard let processedCmd = processCommand(cmdText) else {
             showAlert(title: "错误", message: "指令处理失败，请检查格式")
             return
@@ -397,7 +383,7 @@ class AddCMDViewController: BlueToothBaseViewController {
         placeholderLabel.isHidden = false
         
         // 显示成功提示
-        showAlert(title: "成功", message: "指令已保存：\(title)\n处理后的指令：\(processedCmd)")
+        showAlert(title: "成功", message: "指令已保存：\(title)\n格式化后的指令：\(processedCmd)")
     }
     
     @objc private func importJSONButtonTapped() {
@@ -478,7 +464,7 @@ extension AddCMDViewController: UIDocumentPickerDelegate {
             for jsonItem in jsonItems {
                 // 验证指令格式
                 if validateHexString(jsonItem.cmd) {
-                    // 处理指令（如果需要）
+                    // 处理指令（格式化为空格分隔的十六进制字符串）
                     let processedCmd = processCommand(jsonItem.cmd) ?? jsonItem.cmd
                     let command = CommandItem(cmdTitle: jsonItem.cmdTitle, cmd: processedCmd)
                     appendCommand(command)
