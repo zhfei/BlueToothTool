@@ -8,9 +8,10 @@
 import Foundation
 
 /// 文件和目录管理的工具类
+public
 class FileUtils {
     
-    static let shared = FileUtils()
+    public static let shared = FileUtils()
     
     private let fileManager = FileManager.default
     
@@ -19,7 +20,7 @@ class FileUtils {
     // MARK: - 路径获取
     
     /// 获取文档目录URL
-    func getDocumentsDirectory() -> URL {
+    public func getDocumentsDirectory() -> URL {
         return fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
@@ -84,18 +85,18 @@ class FileUtils {
     // MARK: - 文件操作
     
     /// 检查文件是否存在
-    func fileExists(at path: URL) -> Bool {
+    public func fileExists(at path: URL) -> Bool {
         return fileManager.fileExists(atPath: path.path)
     }
     
     /// 创建文件
     @discardableResult
-    func createFile(at path: URL, contents: Data?) -> Bool {
+    public func createFile(at path: URL, contents: Data?) -> Bool {
         return fileManager.createFile(atPath: path.path, contents: contents)
     }
     
     /// 读取文件内容
-    func readFile(at path: URL) -> Data? {
+    public func readFile(at path: URL) -> Data? {
         return fileManager.contents(atPath: path.path)
     }
     

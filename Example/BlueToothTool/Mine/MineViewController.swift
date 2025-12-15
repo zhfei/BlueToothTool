@@ -375,42 +375,9 @@ class MineViewController: BlueToothBaseViewController {
     }
     
     private func showDebugCommandInput() {
-        let alert = UIAlertController(
-            title: "添加调试指令",
-            message: "请输入调试指令",
-            preferredStyle: .alert
-        )
-        
-        alert.addTextField { textField in
-            textField.placeholder = "指令内容"
-            textField.autocapitalizationType = .none
-        }
-        
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-        alert.addAction(UIAlertAction(title: "添加", style: .default) { [weak self] _ in
-            guard let self = self,
-                  let textField = alert.textFields?.first,
-                  let command = textField.text,
-                  !command.isEmpty else {
-                return
-            }
-            
-            // 保存调试指令到 UserDefaults
-            var commands = UserDefaults.standard.stringArray(forKey: "DebugCommands") ?? []
-            commands.append(command)
-            UserDefaults.standard.set(commands, forKey: "DebugCommands")
-            
-            // 显示成功提示
-            let successAlert = UIAlertController(
-                title: "添加成功",
-                message: "调试指令已添加：\(command)",
-                preferredStyle: .alert
-            )
-            successAlert.addAction(UIAlertAction(title: "确定", style: .default))
-            self.present(successAlert, animated: true)
-        })
-        
-        present(alert, animated: true)
+        let vc = AddCMDViewController()
+        vc.hidesBottomBarWhenPushed = true
+        PageManager.pushViewController(vc)
     }
 }
 
