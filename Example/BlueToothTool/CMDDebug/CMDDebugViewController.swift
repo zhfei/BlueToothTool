@@ -10,6 +10,8 @@ import UIKit
 import SnapKit
 import BlueToothTool
 import CoreBluetooth
+import DZNEmptyDataSet
+import MJRefresh
 
 class CMDDebugViewController: BlueToothBaseViewController {
     
@@ -32,7 +34,7 @@ class CMDDebugViewController: BlueToothBaseViewController {
     }()
     
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -66,6 +68,17 @@ class CMDDebugViewController: BlueToothBaseViewController {
         tableView.dataSource = self
         tableView.register(BLEDeviceCell.self, forCellReuseIdentifier: "BLEDeviceCell")
         tableView.register(MFIDeviceCell.self, forCellReuseIdentifier: "MFIDeviceCell")
+        
+        // 配置 DZNEmptyDataSet
+        tableView.emptyDataSetSource = self
+        tableView.emptyDataSetDelegate = self
+        
+        // 配置 MJRefresh 下拉刷新
+        let header = MJRefreshNormalHeader { [weak self] in
+            self?.refreshDeviceList()
+        }
+        header.lastUpdatedTimeLabel?.isHidden = true
+        tableView.mj_header = header
     }
     
     private func setupManagers() {
@@ -113,6 +126,8 @@ class CMDDebugViewController: BlueToothBaseViewController {
         
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadData()
+            // 结束下拉刷新动画
+            self?.tableView.mj_header?.endRefreshing()
         }
     }
     
@@ -226,5 +241,38 @@ extension CMDDebugViewController: UITableViewDelegate {
         default:
             break
         }
+    }
+}
+
+// MARK: - DZNEmptyDataSetSource & DZNEmptyDataSetDelegate
+
+extension CMDDebugViewController: DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+    
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "暂无已连接设备"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
+            .foregroundColor: UIColor.gray
+        ]
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "请先连接 BLE 或 MFI 设备"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 15),
+            .foregroundColor: UIColor.lightGray
+        ]
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+    
+    func emptyDataSetShouldDisplay(_ scrollView: UIScrollView!) -> Bool {
+        // 当两个 section 的总行数为 0 时显示空状态
+        return connectedBLEDevices.count + connectedMFIDevices.count == 0
+    }
+    
+    func emptyDataSet(_ scrollView: UIScrollView!, didTap view: UIView!) {
+        // 点击空状态时触发刷新
+        refreshDeviceList()
     }
 }

@@ -10,6 +10,9 @@ target 'BlueToothTool_Example' do
   # Debug
   pod 'LookinServer', '1.2.8', :subspecs => ['SwiftAndNoHook'], :configurations => ['Debug']
   pod 'DoraemonKit', '3.1.7', :configurations => ['Debug']
+  
+  pod 'DZNEmptyDataSet', '1.8.1'
+  pod 'MJRefresh', '3.7.9'
 
   target 'BlueToothTool_Tests' do
     inherit! :search_paths

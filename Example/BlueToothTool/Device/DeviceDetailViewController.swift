@@ -31,7 +31,7 @@ class DeviceDetailViewController: BlueToothBaseViewController {
     }()
     
     // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()

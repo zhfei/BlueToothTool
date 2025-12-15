@@ -123,6 +123,10 @@ class MFIDeviceCell: UITableViewCell {
         manufacturerLabel.text = "制造商: \(device.manufacturer)"
         modelLabel.text = "型号: \(device.modelNumber.isEmpty ? "未知" : device.modelNumber)"
         serialLabel.text = "序列号: \(device.serialNumber.isEmpty ? "未知" : device.serialNumber)"
+        
+        if device.name.isEmpty {
+            nameLabel.text = device.modelNumber
+        }
     }
 }
 
