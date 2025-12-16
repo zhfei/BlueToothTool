@@ -131,9 +131,8 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // 关闭会话流
-        session?.inputStream?.close()
-        session?.outputStream?.close()
+        // 不在此处关闭流，避免跳转到其他页面时误关闭会话
+        // 流的关闭逻辑已移至 deinit 中，确保页面真正销毁时才关闭
     }
     
     // MARK: - Setup
@@ -277,6 +276,8 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
             outputStream.schedule(in: RunLoop.current, forMode: .common)
             outputStream.open()
         }
+        
+        LogDebug("session:\(session)")
     }
     
     // MARK: - Actions
@@ -500,6 +501,15 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+        // 页面销毁时关闭会话流，确保资源正确释放
+        if let inputStream = session?.inputStream {
+            inputStream.remove(from: RunLoop.current, forMode: .common)
+            inputStream.close()
+        }
+        if let outputStream = session?.outputStream {
+            outputStream.remove(from: RunLoop.current, forMode: .common)
+            outputStream.close()
+        }
     }
 }
 
