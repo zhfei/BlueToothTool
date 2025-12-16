@@ -228,7 +228,7 @@ extension CMDDebugViewController: UITableViewDelegate {
         switch indexPath.section {
         case 0: // BLE 设备
             let device = connectedBLEDevices[indexPath.row]
-            let detailVC = DeviceDetailViewController()
+            let detailVC = CMDBLEDebugDetailViewController()
             detailVC.device = device
             PageManager.pushViewController(detailVC, animated: true)
             

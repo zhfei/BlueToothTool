@@ -17,6 +17,8 @@
 		9113C10A2EF0725F00D55DF9 /* CMDListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C1092EF0725F00D55DF9 /* CMDListViewController.swift */; };
 		9113C10C2EF0743B00D55DF9 /* CommandItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C10B2EF0743B00D55DF9 /* CommandItemCell.swift */; };
 		9113C10E2EF079B400D55DF9 /* CMDMFISenderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C10D2EF079B400D55DF9 /* CMDMFISenderViewController.swift */; };
+		9113C1142EF1169400D55DF9 /* CMDBLESenderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C1132EF1169400D55DF9 /* CMDBLESenderViewController.swift */; };
+		9113C1162EF116B100D55DF9 /* CMDBLEDebugDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9113C1152EF116B100D55DF9 /* CMDBLEDebugDetailViewController.swift */; };
 		911421D02E77364700EC96DF /* CMDDebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421CF2E77364700EC96DF /* CMDDebugViewController.swift */; };
 		911421D22E77365800EC96DF /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D12E77365800EC96DF /* DeviceViewController.swift */; };
 		911421D52E7736A700EC96DF /* BlueToothBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */; };
@@ -64,6 +66,8 @@
 		9113C1092EF0725F00D55DF9 /* CMDListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDListViewController.swift; sourceTree = "<group>"; };
 		9113C10B2EF0743B00D55DF9 /* CommandItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandItemCell.swift; sourceTree = "<group>"; };
 		9113C10D2EF079B400D55DF9 /* CMDMFISenderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDMFISenderViewController.swift; sourceTree = "<group>"; };
+		9113C1132EF1169400D55DF9 /* CMDBLESenderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDBLESenderViewController.swift; sourceTree = "<group>"; };
+		9113C1152EF116B100D55DF9 /* CMDBLEDebugDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDBLEDebugDetailViewController.swift; sourceTree = "<group>"; };
 		911421CF2E77364700EC96DF /* CMDDebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMDDebugViewController.swift; sourceTree = "<group>"; };
 		911421D12E77365800EC96DF /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
 		911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueToothBaseViewController.swift; sourceTree = "<group>"; };
@@ -202,6 +206,8 @@
 				911421CF2E77364700EC96DF /* CMDDebugViewController.swift */,
 				9179C7862EEA377100B12882 /* CMDMFIDebugDetailViewController.swift */,
 				9113C10D2EF079B400D55DF9 /* CMDMFISenderViewController.swift */,
+				9113C1132EF1169400D55DF9 /* CMDBLESenderViewController.swift */,
+				9113C1152EF116B100D55DF9 /* CMDBLEDebugDetailViewController.swift */,
 			);
 			path = CMDDebug;
 			sourceTree = "<group>";
@@ -443,12 +449,14 @@
 				9113C10A2EF0725F00D55DF9 /* CMDListViewController.swift in Sources */,
 				911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */,
 				9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */,
+				9113C1142EF1169400D55DF9 /* CMDBLESenderViewController.swift in Sources */,
 				9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */,
 				914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */,
 				911421D02E77364700EC96DF /* CMDDebugViewController.swift in Sources */,
 				9113C10E2EF079B400D55DF9 /* CMDMFISenderViewController.swift in Sources */,
 				9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */,
 				9179C7892EEA3D0200B12882 /* AddCMDViewController.swift in Sources */,
+				9113C1162EF116B100D55DF9 /* CMDBLEDebugDetailViewController.swift in Sources */,
 				911421D92E77370D00EC96DF /* MineViewController.swift in Sources */,
 				9179C77D2EE9AEE400B12882 /* MFIDeviceCell.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,

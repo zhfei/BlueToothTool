@@ -34,7 +34,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         return scrollView
     }()
     
-    private let contentView: UIView = {
+    let contentView: UIView = {
         let view = UIView()
         view.backgroundColor = Color.backgroundGray
         return view
@@ -53,7 +53,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         return view
     }()
     
-    private let cmdTextView: UITextView = {
+    let cmdTextView: UITextView = {
         let textView = UITextView()
         textView.font = .systemFont(ofSize: 14)
         textView.backgroundColor = Color.backgroundGray
@@ -71,7 +71,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         return button
     }()
     
-    private let resultCardView: UIView = {
+    let resultCardView: UIView = {
         let view = UIView()
         view.backgroundColor = Color.white
         view.layer.cornerRadius = 12
@@ -87,7 +87,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         return label
     }()
     
-    private let resultTextView: UITextView = {
+    let resultTextView: UITextView = {
         let textView = UITextView()
         textView.font = .systemFont(ofSize: 13, weight: .regular)
         textView.backgroundColor = Color.backgroundGray
@@ -99,7 +99,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         return textView
     }()
     
-    private let sendButton: UIButton = {
+    let sendButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("发送指令", for: .normal)
         button.setTitleColor(Color.white, for: .normal)
@@ -124,7 +124,10 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        openSessionStreams()
+        // openSessionStreams() 仅在 MFI 模式下调用，BLE 模式由子类处理
+        if session != nil {
+            openSessionStreams()
+        }
         setupTextViewPlaceholder()
         setupTapGestureToDismissKeyboard()
     }
@@ -137,7 +140,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
     
     // MARK: - Setup
     
-    private func setupUI() {
+    func setupUI() {
         title = "指令发送"
         
         // 设置导航栏样式
@@ -288,7 +291,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         PageManager.pushViewController(cmdListVC, animated: true)
     }
     
-    @objc private func sendButtonTapped() {
+    @objc func sendButtonTapped() {
         guard let cmdText = cmdTextView.text, !cmdText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             showAlert(title: "提示", message: "请输入指令内容")
             return
@@ -310,7 +313,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
     
     // MARK: - Data Validation & Parsing
     
-    private func validateHexString(_ hexString: String) -> Bool {
+    func validateHexString(_ hexString: String) -> Bool {
         let cleaned = hexString
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "0x", with: "", options: .caseInsensitive)
@@ -323,7 +326,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
                cleaned.allSatisfy { $0.isHexDigitCMD }
     }
     
-    private func parseHexStringToData(_ hexString: String) -> Data? {
+    func parseHexStringToData(_ hexString: String) -> Data? {
         let cleaned = hexString
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "0x", with: "", options: .caseInsensitive)
@@ -464,7 +467,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         pendingSendData = remainingQueue
     }
     
-    private func appendToResult(text: String, isSend: Bool) {
+    func appendToResult(text: String, isSend: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
@@ -491,7 +494,7 @@ class CMDMFISenderViewController: BlueToothBaseViewController {
         }
     }
     
-    private func showAlert(title: String, message: String) {
+    func showAlert(title: String, message: String) {
         DispatchQueue.main.async { [weak self] in
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "确定", style: .default))
