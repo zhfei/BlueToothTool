@@ -147,7 +147,7 @@ extension BLEManager: CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
-        LogDebug("peripheral:\(peripheral) - advertisementData:\(advertisementData) - RSSI:\(RSSI)")
+        LogDebug("1.扫描设备(success)：peripheral:\(peripheral) - advertisementData:\(advertisementData) - RSSI:\(RSSI)")
         let deviceName = peripheral.name ?? "未知设备"
         let identifier = peripheral.identifier.uuidString
         let rssi = RSSI.intValue
@@ -180,6 +180,7 @@ extension BLEManager: CBCentralManagerDelegate {
     
     // 连接成功
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        LogDebug("2.连接设备(success)：peripheral:\(peripheral)")
         print("BLE 连接成功 ✅")
         DispatchQueue.main.async { [weak self] in
             self?.onDeviceConnected?(peripheral)
@@ -200,6 +201,7 @@ extension BLEManager: CBPeripheralDelegate {
     // peripheral.delegate 的 方法实现。
      // MARK: - CBPeripheralDelegate
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        LogDebug("3.查询服务(success)：peripheral:\(peripheral.services)")
         let services = peripheral.services ?? []
         print("发现服务数量: \(services.count)")
         for service in services {
@@ -215,6 +217,7 @@ extension BLEManager: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral,
                         didDiscoverCharacteristicsFor service: CBService,
                         error: Error?) {
+        LogDebug("4.查询特征(success)：service:\(service)")
         let characteristics = service.characteristics ?? []
         for characteristic in characteristics {
             print("发现特征: \(characteristic.uuid)")
@@ -230,6 +233,7 @@ extension BLEManager: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral,
                         didUpdateValueFor characteristic: CBCharacteristic,
                         error: Error?) {
+        LogDebug("5.订阅特征(success)：characteristic:\(characteristic)")
         if let data = characteristic.value {
             print("收到特征数据: \(data)")
         }
@@ -242,6 +246,7 @@ extension BLEManager: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral,
                         didWriteValueFor characteristic: CBCharacteristic,
                         error: Error?) {
+        LogDebug("5.1.写特征(success)：characteristic:\(characteristic)")
         if let error = error {
             print("写入特征失败: \(error)")
         } else {
