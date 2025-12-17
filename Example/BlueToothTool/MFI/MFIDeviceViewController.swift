@@ -9,47 +9,14 @@
 import UIKit
 import SnapKit
 import BlueToothTool
-import DZNEmptyDataSet
-import MJRefresh
 
-class MFIDeviceViewController: BlueToothBaseViewController {
+class MFIDeviceViewController: BlueToothBaseTableViewController {
     
     // MARK: - Properties
     
     private let mfiManager = MFIManager.shared
     private var allDevices: [MFIDeviceModel] = []
     private var filteredDevices: [MFIDeviceModel] = []
-    private var refreshTimer: Timer?
-    
-    private let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.placeholder = "搜索设备名称或制造商"
-        searchBar.backgroundColor = Color.lakeBlue
-        searchBar.searchBarStyle = .minimal
-        searchBar.tintColor = Color.white
-        return searchBar
-    }()
-    
-    private let refreshButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
-        button.tintColor = Color.white
-        button.backgroundColor = Color.lakeBlue
-        return button
-    }()
-    
-    private let searchContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = Color.lakeBlue
-        return view
-    }()
-    
-    private let tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.backgroundColor = Color.backgroundGray
-        tableView.separatorStyle = .none
-        return tableView
-    }()
 
     // MARK: - Lifecycle
     
@@ -58,70 +25,23 @@ class MFIDeviceViewController: BlueToothBaseViewController {
         allDevices.removeAll()
         filteredDevices.removeAll()
         
-        setupUI()
         setupMFIManager()
         refreshDevices()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        stopRefreshTimer()
-    }
-    
-    deinit {
-        stopRefreshTimer()
-    }
-    
     // MARK: - Setup
     
-    private func setupUI() {
+    override func setupNavigationBarStyle() {
         title = "MFI设备"
         
-        // 添加搜索容器视图
-        view.addSubview(searchContainerView)
-        searchContainerView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.left.right.equalToSuperview()
-            make.height.equalTo(44)
-        }
-        
-        // 添加刷新按钮
-        searchContainerView.addSubview(refreshButton)
-        refreshButton.addTarget(self, action: #selector(refreshButtonTapped), for: .touchUpInside)
-        refreshButton.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-12)
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(32)
-        }
-        
-        // 添加搜索栏
-        searchContainerView.addSubview(searchBar)
-        searchBar.delegate = self
-        searchBar.snp.makeConstraints { make in
-            make.top.bottom.left.equalToSuperview()
-            make.right.equalTo(refreshButton.snp.left).offset(-8)
-        }
-        
-        // 添加设备列表
-        view.addSubview(tableView)
+        // 设置搜索栏占位符
+        searchBar.placeholder = "搜索设备名称或制造商"
+    }
+    
+    override func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(MFIDeviceCell.self, forCellReuseIdentifier: "MFIDeviceCell")
-        tableView.snp.makeConstraints { make in
-            make.top.equalTo(searchBar.snp.bottom)
-            make.left.right.bottom.equalToSuperview()
-        }
-        
-        // 配置 DZNEmptyDataSet
-        tableView.emptyDataSetSource = self
-        tableView.emptyDataSetDelegate = self
-        
-        // 配置 MJRefresh 下拉刷新
-        let header = MJRefreshNormalHeader { [weak self] in
-            self?.refreshDevices()
-        }
-        header.lastUpdatedTimeLabel?.isHidden = true
-        tableView.mj_header = header
     }
     
     private func setupMFIManager() {
@@ -150,10 +70,33 @@ class MFIDeviceViewController: BlueToothBaseViewController {
         }
     }
     
-    // MARK: - Actions
+    // MARK: - Abstract Methods Implementation
     
-    @objc private func refreshButtonTapped() {
+    override func numberOfDevices() -> Int {
+        return filteredDevices.count
+    }
+    
+    override func filterDevices() {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
+            filteredDevices = allDevices
+            return
+        }
+        
+        let lowercasedSearchText = searchText.lowercased()
+        filteredDevices = allDevices.filter { device in
+            device.name.lowercased().contains(lowercasedSearchText) ||
+            device.manufacturer.lowercased().contains(lowercasedSearchText) ||
+            device.modelNumber.lowercased().contains(lowercasedSearchText) ||
+            device.serialNumber.lowercased().contains(lowercasedSearchText)
+        }
+    }
+    
+    override func performRefresh() {
         refreshDevices()
+    }
+    
+    override func emptyStateTitle() -> String {
+        return "暂无MFI设备"
     }
     
     // MARK: - Device Management
@@ -169,49 +112,15 @@ class MFIDeviceViewController: BlueToothBaseViewController {
         })
     }
     
-    // MARK: - Timer Management
-    
-    private func startRefreshTimer() {
-        stopRefreshTimer()
-        
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-            self?.updateDeviceList()
-        }
-        
-        // 将定时器添加到 RunLoop 的 common modes，确保在滚动时也能触发
-        if let timer = refreshTimer {
-            RunLoop.main.add(timer, forMode: .common)
-        }
-    }
-    
-    private func stopRefreshTimer() {
-        refreshTimer?.invalidate()
-        refreshTimer = nil
-    }
     
     // MARK: - Data Management
     
-    private func updateDeviceList() {
+    override func updateDeviceList() {
         allDevices = mfiManager.devices
         filterDevices()
-    }
-    
-    private func filterDevices() {
-        guard let searchText = searchBar.text, !searchText.isEmpty else {
-            filteredDevices = allDevices
-            tableView.reloadData()
-            return
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
         }
-        
-        let lowercasedSearchText = searchText.lowercased()
-        filteredDevices = allDevices.filter { device in
-            device.name.lowercased().contains(lowercasedSearchText) ||
-            device.manufacturer.lowercased().contains(lowercasedSearchText) ||
-            device.modelNumber.lowercased().contains(lowercasedSearchText) ||
-            device.serialNumber.lowercased().contains(lowercasedSearchText)
-        }
-        
-        tableView.reloadData()
     }
 }
 
@@ -249,53 +158,3 @@ extension MFIDeviceViewController: UITableViewDelegate {
     }
 }
 
-// MARK: - UISearchBarDelegate
-extension MFIDeviceViewController: UISearchBarDelegate {
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterDevices()
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        searchBar.resignFirstResponder()
-        filterDevices()
-    }
-}
-
-// MARK: - DZNEmptyDataSetSource & DZNEmptyDataSetDelegate
-
-extension MFIDeviceViewController: DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
-    
-    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
-        let text = "暂无MFI设备"
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
-            .foregroundColor: UIColor.gray
-        ]
-        return NSAttributedString(string: text, attributes: attributes)
-    }
-    
-    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
-        let text = "下拉刷新或点击刷新按钮搜索设备"
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 15),
-            .foregroundColor: UIColor.lightGray
-        ]
-        return NSAttributedString(string: text, attributes: attributes)
-    }
-    
-    func emptyDataSetShouldDisplay(_ scrollView: UIScrollView!) -> Bool {
-        // 当过滤后的设备列表为空时显示空状态
-        return filteredDevices.count == 0
-    }
-    
-    func emptyDataSet(_ scrollView: UIScrollView!, didTap view: UIView!) {
-        // 点击空状态时触发刷新
-        refreshDevices()
-    }
-}

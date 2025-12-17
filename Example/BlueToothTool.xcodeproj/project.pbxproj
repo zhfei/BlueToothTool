@@ -25,6 +25,7 @@
 		911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */; };
 		911421D92E77370D00EC96DF /* MineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911421D82E77370D00EC96DF /* MineViewController.swift */; };
 		914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914934212EE82A860014C4AF /* BLEDeviceCell.swift */; };
+		915921A72EF2619D006F0756 /* BlueToothBaseTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915921A62EF2619D006F0756 /* BlueToothBaseTableViewController.swift */; };
 		9179C7692EE8637D00B12882 /* DeviceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */; };
 		9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */; };
 		9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9179C76C2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift */; };
@@ -74,6 +75,7 @@
 		911421D62E7736F300EC96DF /* MFIDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFIDeviceViewController.swift; sourceTree = "<group>"; };
 		911421D82E77370D00EC96DF /* MineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MineViewController.swift; sourceTree = "<group>"; };
 		914934212EE82A860014C4AF /* BLEDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceCell.swift; sourceTree = "<group>"; };
+		915921A62EF2619D006F0756 /* BlueToothBaseTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueToothBaseTableViewController.swift; sourceTree = "<group>"; };
 		9179C7682EE8637D00B12882 /* DeviceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailViewController.swift; sourceTree = "<group>"; };
 		9179C76A2EE86F4000B12882 /* DeviceServiceDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceDetailViewController.swift; sourceTree = "<group>"; };
 		9179C76C2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceServiceCharacteristicViewController.swift; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				911421D42E7736A700EC96DF /* BlueToothBaseViewController.swift */,
+				915921A62EF2619D006F0756 /* BlueToothBaseTableViewController.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -449,6 +452,7 @@
 				9113C10A2EF0725F00D55DF9 /* CMDListViewController.swift in Sources */,
 				911421D72E7736F300EC96DF /* MFIDeviceViewController.swift in Sources */,
 				9179C76D2EE8828900B12882 /* DeviceServiceCharacteristicViewController.swift in Sources */,
+				915921A72EF2619D006F0756 /* BlueToothBaseTableViewController.swift in Sources */,
 				9113C1142EF1169400D55DF9 /* CMDBLESenderViewController.swift in Sources */,
 				9179C76B2EE86F4000B12882 /* DeviceServiceDetailViewController.swift in Sources */,
 				914934222EE82A860014C4AF /* BLEDeviceCell.swift in Sources */,
