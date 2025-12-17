@@ -11,6 +11,21 @@ import SnapKit
 import DZNEmptyDataSet
 import MJRefresh
 
+/// 排序类型枚举
+enum SortType {
+    case nearestDistance    // 最近距离（仅BLE）
+    case recentlyDiscovered // 最近搜索到的
+    
+    var displayName: String {
+        switch self {
+        case .nearestDistance:
+            return "最近距离"
+        case .recentlyDiscovered:
+            return "最近搜索到的"
+        }
+    }
+}
+
 class BlueToothBaseTableViewController: BlueToothBaseViewController {
     
     // MARK: - Public Properties
@@ -38,6 +53,15 @@ class BlueToothBaseTableViewController: BlueToothBaseViewController {
         return button
     }()
     
+    let sortButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("最近", for: .normal)
+        button.setTitleColor(Color.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        button.backgroundColor = Color.lakeBlue
+        return button
+    }()
+    
     let searchContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = Color.lakeBlue
@@ -45,6 +69,7 @@ class BlueToothBaseTableViewController: BlueToothBaseViewController {
     }()
     
     var refreshTimer: Timer?
+    var currentSortType: SortType?
     
     // MARK: - Lifecycle
     
@@ -85,12 +110,22 @@ class BlueToothBaseTableViewController: BlueToothBaseViewController {
             make.width.height.equalTo(32)
         }
         
+        // 添加排序按钮
+        searchContainerView.addSubview(sortButton)
+        sortButton.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
+        sortButton.snp.makeConstraints { make in
+            make.right.equalTo(refreshButton.snp.left).offset(-8)
+            make.centerY.equalToSuperview()
+            make.height.equalTo(32)
+            make.width.equalTo(50)
+        }
+        
         // 添加搜索栏
         searchContainerView.addSubview(searchBar)
         searchBar.delegate = self
         searchBar.snp.makeConstraints { make in
             make.top.bottom.left.equalToSuperview()
-            make.right.equalTo(refreshButton.snp.left).offset(-8)
+            make.right.equalTo(sortButton.snp.left).offset(-8)
         }
         
         // 添加设备列表
@@ -147,10 +182,51 @@ class BlueToothBaseTableViewController: BlueToothBaseViewController {
         // 默认空实现，子类可重写
     }
     
+    /// 获取可用的排序类型
+    func getAvailableSortTypes() -> [SortType] {
+        fatalError("子类必须实现 getAvailableSortTypes()")
+    }
+    
+    /// 应用排序
+    func applySort(type: SortType) {
+        fatalError("子类必须实现 applySort(type:)")
+    }
+    
     // MARK: - Actions
     
     @objc func refreshButtonTapped() {
         performRefresh()
+    }
+    
+    @objc func sortButtonTapped() {
+        let availableSortTypes = getAvailableSortTypes()
+        
+        guard !availableSortTypes.isEmpty else {
+            return
+        }
+        
+        let alert = UIAlertController(
+            title: "排序方式",
+            message: "请选择排序方式",
+            preferredStyle: .actionSheet
+        )
+        
+        for sortType in availableSortTypes {
+            alert.addAction(UIAlertAction(title: sortType.displayName, style: .default) { [weak self] _ in
+                self?.currentSortType = sortType
+                self?.applySort(type: sortType)
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        
+        // iPad 支持
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = sortButton
+            popover.sourceRect = sortButton.bounds
+        }
+        
+        present(alert, animated: true)
     }
     
     // MARK: - Timer Management

@@ -77,17 +77,21 @@ class MFIDeviceViewController: BlueToothBaseTableViewController {
     }
     
     override func filterDevices() {
-        guard let searchText = searchBar.text, !searchText.isEmpty else {
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            let lowercasedSearchText = searchText.lowercased()
+            filteredDevices = allDevices.filter { device in
+                device.name.lowercased().contains(lowercasedSearchText) ||
+                device.manufacturer.lowercased().contains(lowercasedSearchText) ||
+                device.modelNumber.lowercased().contains(lowercasedSearchText) ||
+                device.serialNumber.lowercased().contains(lowercasedSearchText)
+            }
+        } else {
             filteredDevices = allDevices
-            return
         }
         
-        let lowercasedSearchText = searchText.lowercased()
-        filteredDevices = allDevices.filter { device in
-            device.name.lowercased().contains(lowercasedSearchText) ||
-            device.manufacturer.lowercased().contains(lowercasedSearchText) ||
-            device.modelNumber.lowercased().contains(lowercasedSearchText) ||
-            device.serialNumber.lowercased().contains(lowercasedSearchText)
+        // 如果当前有排序类型，应用排序
+        if let sortType = currentSortType {
+            applySort(type: sortType)
         }
     }
     
@@ -97,6 +101,25 @@ class MFIDeviceViewController: BlueToothBaseTableViewController {
     
     override func emptyStateTitle() -> String {
         return "暂无MFI设备"
+    }
+    
+    override func getAvailableSortTypes() -> [SortType] {
+        return [.recentlyDiscovered]
+    }
+    
+    override func applySort(type: SortType) {
+        switch type {
+        case .recentlyDiscovered:
+            // 按发现时间降序排序（最新发现的靠前）
+            filteredDevices.sort { $0.discoveredTime > $1.discoveredTime }
+        case .nearestDistance:
+            // MFI设备不支持距离排序，不处理
+            break
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
     
     // MARK: - Device Management

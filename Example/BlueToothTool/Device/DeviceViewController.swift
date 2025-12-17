@@ -94,15 +94,19 @@ class DeviceViewController: BlueToothBaseTableViewController {
     }
     
     override func filterDevices() {
-        guard let searchText = searchBar.text, !searchText.isEmpty else {
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            let lowercasedSearchText = searchText.lowercased()
+            filteredDevices = allDevices.filter { device in
+                device.name.lowercased().contains(lowercasedSearchText) ||
+                device.identifier.lowercased().contains(lowercasedSearchText)
+            }
+        } else {
             filteredDevices = allDevices
-            return
         }
         
-        let lowercasedSearchText = searchText.lowercased()
-        filteredDevices = allDevices.filter { device in
-            device.name.lowercased().contains(lowercasedSearchText) ||
-            device.identifier.lowercased().contains(lowercasedSearchText)
+        // 如果当前有排序类型，应用排序
+        if let sortType = currentSortType {
+            applySort(type: sortType)
         }
     }
     
@@ -112,6 +116,38 @@ class DeviceViewController: BlueToothBaseTableViewController {
     
     override func emptyStateTitle() -> String {
         return "暂无BLE设备"
+    }
+    
+    override func getAvailableSortTypes() -> [SortType] {
+        return [.nearestDistance, .recentlyDiscovered]
+    }
+    
+    override func applySort(type: SortType) {
+        switch type {
+        case .nearestDistance:
+            // 按距离升序排序（距离越近越靠前）
+            filteredDevices.sort { device1, device2 in
+                let distance1 = device1.distance
+                let distance2 = device2.distance
+                // 处理无效距离（-1.0）
+                if distance1 < 0 && distance2 < 0 {
+                    return false
+                } else if distance1 < 0 {
+                    return false // 无效距离排在后面
+                } else if distance2 < 0 {
+                    return true
+                } else {
+                    return distance1 < distance2
+                }
+            }
+        case .recentlyDiscovered:
+            // 按发现时间降序排序（最新发现的靠前）
+            filteredDevices.sort { $0.discoveredTime > $1.discoveredTime }
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
     
     // MARK: - BLE Scanning
